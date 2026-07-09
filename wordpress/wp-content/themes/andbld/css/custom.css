@@ -1,0 +1,32 @@
+/* キーワード自動リンクのスタイル */
+.auto-link-keyword {
+    color: var(--color-primary);
+    transition: color 0.3s ease;
+}
+
+.auto-link-keyword:hover {
+    color: var(--color-quaternary);
+    text-decoration: underline;
+}
+
+.auto-link-keyword:visited {
+    color: var(--color-primary);
+}
+
+/* キーワード管理画面のスタイル */
+.post-type-keyword .wp-editor-wrap {
+    margin-top: 10px;
+}
+
+.post-type-keyword #keyword_url {
+    font-size: 14px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.post-type-keyword #keyword_url:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
+}

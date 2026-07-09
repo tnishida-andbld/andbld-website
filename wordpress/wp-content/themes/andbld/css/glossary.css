@@ -1,0 +1,669 @@
+/*--------------------------------------------------------------
+# Glossary Styles
+--------------------------------------------------------------*/
+
+/* Glossary List */
+.glossary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.glossary-item {
+    background: var(--color-white);
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.glossary-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.single .glossary-item{
+    transform: translateY(0);
+}
+
+.archive .content-wrapper article.glossary-item {
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.archive .content-wrapper article.glossary-item .entry-header{
+    width: 75%;
+    margin-bottom: 0;
+}
+
+.archive .content-wrapper article.glossary-item .entry-header .entry-title{
+    margin-bottom: 0;
+}
+
+.archive .content-wrapper article.glossary-item .entry-header .entry-title a {
+    font-size: 1.8rem;
+    font-weight: bold;
+    line-height: 150%;
+    color: var(--color-black);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.archive .content-wrapper article.glossary-item:hover .entry-header .entry-title a {
+    color: var(--color-primary);
+}
+
+.archive .content-wrapper article.glossary-item .entry-footer{
+    width: 20%;
+}
+
+.glossary-item .entry-footer .read-more {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    background: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    color: var(--color-white);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+    font-weight: bold;
+    text-align: center;
+}
+
+.archive .content-wrapper article.glossary-item:hover .entry-footer .read-more {
+    background: var(--color-white);
+    color: var(--color-primary);
+}
+
+.glossary .entry-header{
+    margin-top: 0;
+    margin-bottom: 50px;
+}
+
+.glossary .entry-header .entry-title{
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 150%;
+    color: var(--color-primary);
+    text-align: left;
+}
+
+.glossary .entry-content{
+    margin-bottom: 50px;
+}
+
+.glossary .glossary-meta-item{
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    color: var(--color-black);
+    line-height: 1.6;
+}
+
+.glossary .glossary-meta-item .meta-label{
+    margin-right: 10px;
+}
+
+.glossary .glossary-meta-item .glossary-item-category{
+    margin-right: 20px;
+}
+
+.glossary .category-tag {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: 1px solid var(--color-primary);
+    padding: 5px 20px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: inline-block;
+    line-height: 200%;
+    margin-bottom: 10px;
+}
+
+.glossary .category-tag:hover{
+    background: var(--color-white);
+    color: var(--color-primary);
+}
+
+
+/* No Results */
+.no-glossary-found {
+    text-align: center;
+    padding: 100px 0;
+}
+
+.no-glossary-found h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--color-primary);
+}
+
+.no-glossary-found p {
+    color: var(--color-black);
+    margin-bottom: 30px;
+    font-size: 1rem;
+}
+
+.btn-back-to-glossary {
+    display: inline-block;
+    padding: 15px 30px;
+    background: var(--color-primary);
+    color: var(--color-white);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+    font-weight: bold;
+}
+
+.btn-back-to-glossary:hover {
+    background: var(--color-black);
+}
+
+/* Single Glossary Page */
+.glossary-single {
+    background: var(--color-white);
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.glossary-breadcrumb {
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+}
+
+.glossary-breadcrumb a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.glossary-breadcrumb a:hover {
+    color: var(--color-black);
+}
+
+.breadcrumb-separator {
+    margin: 0 10px;
+    color: var(--color-black);
+}
+
+.current-term {
+    color: var(--color-black);
+    font-weight: bold;
+}
+
+.glossary-single .entry-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: var(--color-primary);
+    text-align: left;
+    line-height: 150%;
+}
+
+.glossary-single-excerpt {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: var(--color-black);
+}
+
+.glossary-single-meta {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.glossary-categories,
+.glossary-tags {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.meta-label {
+    font-weight: bold;
+    color: var(--color-black);
+}
+
+.category-link,
+.tag-link {
+    background: var(--color-primary);
+    color: var(--color-white);
+    padding: 5px 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+
+.category-link:hover,
+.tag-link:hover {
+    background: var(--color-black);
+    color: var(--color-white);
+}
+
+.glossary-single .entry-content {
+    line-height: 1.8;
+    color: var(--color-black);
+    font-size: 1.1rem;
+}
+
+.glossary-single .entry-content h2,
+.glossary-single .entry-content h3,
+.glossary-single .entry-content h4 {
+    color: var(--color-primary);
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.glossary-single .entry-content p {
+    margin-bottom: 20px;
+}
+
+.glossary-single .entry-content ul,
+.glossary-single .entry-content ol {
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+.glossary-single .entry-content li {
+    margin-bottom: 10px;
+}
+
+/* Related Glossary */
+.related-glossary {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 2px solid #e9ecef;
+}
+
+.related-glossary h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: var(--color-primary);
+}
+
+.related-glossary-list {
+    list-style: none;
+    padding: 0;
+}
+
+.related-glossary-list li {
+    margin-bottom: 10px;
+}
+
+.related-glossary-list a {
+    display: block;
+    padding: 15px;
+    background: var(--color-gray);
+    border-radius: 5px;
+    text-decoration: none;
+    color: var(--color-black);
+    transition: all 0.3s ease;
+}
+
+.related-glossary-list a:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+/* Search Results Page */
+.search-results-container {
+    padding: 80px 0;
+}
+
+.search-result-item {
+    background: var(--color-white);
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.search-result-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.search-result-header {
+    margin-bottom: 20px;
+}
+
+.post-type-badge {
+    margin-bottom: 15px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--color-white);
+}
+
+.glossary-badge {
+    background: #28a745;
+}
+
+.blog-badge {
+    background: #007bff;
+}
+
+.ebook-badge {
+    background: #6f42c1;
+}
+
+.post-badge {
+    background: #6c757d;
+}
+
+.search-result-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    line-height: 150%;
+}
+
+.search-result-title a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.search-result-title a:hover {
+    color: var(--color-black);
+}
+
+.search-result-excerpt {
+    color: var(--color-black);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+.search-result-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-result-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.glossary-categories,
+.blog-categories,
+.post-categories {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.post-date {
+    color: var(--color-black);
+    font-size: 0.9rem;
+}
+
+.search-result-footer .read-more {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--color-primary);
+    color: var(--color-white);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+    font-weight: bold;
+}
+
+.search-result-footer .read-more:hover {
+    background: var(--color-black);
+}
+
+/* No Search Results */
+.no-search-results {
+    text-align: center;
+    padding: 100px 0;
+}
+
+.no-search-results h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--color-primary);
+}
+
+.no-search-results p {
+    color: var(--color-black);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+.search-suggestions {
+    background: var(--color-gray);
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    text-align: left;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.search-suggestions h3 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    color: var(--color-primary);
+}
+
+.search-suggestions ul {
+    list-style: disc;
+    padding-left: 20px;
+    color: var(--color-black);
+}
+
+.search-suggestions li {
+    margin-bottom: 8px;
+}
+
+.search-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-glossary,
+.btn-home {
+    display: inline-block;
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.btn-glossary {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.btn-glossary:hover {
+    background: var(--color-black);
+    color: var(--color-white);
+}
+
+.btn-home {
+    background: #6c757d;
+    color: var(--color-white);
+}
+
+.btn-home:hover {
+    background: #545b62;
+    color: var(--color-white);
+}
+
+/*--------------------------------------------------------------
+# Responsive Design
+--------------------------------------------------------------*/
+
+@media only screen and (max-width: 768px) {
+
+
+.archive .content-wrapper article.glossary-item .entry-header {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.archive .content-wrapper article.glossary-item .entry-footer {
+    width: 100%;
+}
+
+.single .glossary-item {
+    padding: 0;
+    box-shadow: none;
+    border: none;
+}
+
+
+    /* No Search Results */
+    .no-search-results {
+        padding: 50px 0;
+    }
+
+    .no-search-results h2 {
+        font-size: 1.4rem;
+    }
+
+    .no-search-results p {
+        font-size: 0.9rem;
+    }
+
+    .search-suggestions {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .search-suggestions h3 {
+        font-size: 1.1rem;
+    }
+
+    .search-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Breadcrumb */
+    .glossary-breadcrumb {
+        font-size: 0.8rem;
+        margin-bottom: 20px;
+    }
+
+    /* Category Tags */
+    .category-tag,
+    .category-link,
+    .tag-link {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+
+    /* Widget Glossary */
+    .widget .widget-glossary-list-inner ul li {
+        flex-basis: calc((100% - 20px) / 3);
+        max-width: calc((100% - 20px) / 3);
+    }
+
+    .widget .widget-glossary-list-inner ul li a {
+        font-size: 0.8rem;
+        line-height: 150%;
+    }
+}
+
+/* Page Header */
+.no-results{
+    padding-top: 0;
+}
+
+.no-results .page-title {
+    font-size: 2.4rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+    margin-top: 0;
+}
+
+.no-results .page-content p{
+    margin-bottom: 50px;
+}
+
+.no-results .page-content label{
+    margin-right: 20px;
+}
+
+.no-results .page-content input[type="search"] {
+    border: 1px solid var(--color-black);
+    border-radius: 20px;
+    line-height: 40px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.no-results .page-content input[type=submit]{
+    width: 20%;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    border-radius: 5px;
+    line-height: 40px;
+    border: 1px solid var(--color-primary);
+    background-color: var(--color-white);
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.page-description {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 50px;
+    text-align: center;
+}
+
+.pagination .page-numbers {
+    display: inline-block;
+    padding: 10px 15px;
+    margin: 0 5px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-numbers:hover,
+.pagination .page-numbers.current {
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+} 
