@@ -1,0 +1,50 @@
+# WordPress core（本リポジトリの管理対象外）
+wordpress/wp-admin/
+wordpress/wp-includes/
+wordpress/wp-*.php
+wordpress/index.php
+wordpress/xmlrpc.php
+wordpress/license.txt
+wordpress/readme.html
+
+# 設定・秘密情報
+wp-config.php
+wordpress/wp-config.php
+wp-config-local.php
+*.local.php
+.env
+.env.*
+!.env.example
+
+# WordPress uploads / 実行時データ
+wordpress/wp-content/uploads/
+wordpress/wp-content/cache/
+wordpress/wp-content/upgrade/
+wordpress/wp-content/backup*/
+wordpress/wp-content/debug.log
+
+# Cache
+cache/
+
+# 依存関係
+**/node_modules/
+**/vendor/
+
+# log
+*.log
+
+# DB / バックアップ
+*.sql
+*.sql.gz
+*.zip
+
+# mac
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
