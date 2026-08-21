@@ -234,6 +234,14 @@ jobs:
           echo "Backup is outside the live theme directory"
           echo "Old backups are kept (no prune in Phase 2)"
 
+      - name: Wait before rsync
+        if: ${{ inputs.mode == 'deploy' }}
+        run: |
+          set -euo pipefail
+          # Xserver may reset SSH if several sessions start in a short window.
+          echo "Waiting 10s after backup before rsync"
+          sleep 10
+
       - name: rsync dry-run
         if: ${{ inputs.mode == 'dry-run' }}
         run: |
@@ -273,22 +281,54 @@ jobs:
             exit 1
           fi
 
-          echo "Starting rsync deploy to Development theme directory"
-          rsync -avz --delete --checksum \
-            --exclude '.DS_Store' \
-            --exclude 'Thumbs.db' \
-            --exclude 'Desktop.ini' \
-            --exclude '*.bak' \
-            --exclude '*.tmp' \
-            --exclude '*.log' \
-            --exclude '*.map' \
-            --exclude 'node_modules/' \
-            --exclude 'vendor/' \
-            -e "ssh -i ${HOME}/.ssh/development_key -p ${DEV_SSH_PORT} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${HOME}/.ssh/known_hosts -o BatchMode=yes" \
-            "${SOURCE_THEME}/" \
-            "${DEV_SSH_USER}@${DEV_SSH_HOST}:${path}/"
+          # Retry only connection-class failures (SSH handshake reset, socket,
+          # protocol drop, timeout). Do not retry usage, I/O, or generic
+          # partial-transfer errors: those are not fixed by waiting, and a
+          # blind --delete retry after an unknown mid-file failure is avoided.
+          # A full rsync retry after a handshake failure is safe: no files
+          # were written. Backup already exists if this step runs.
+          retryable_rsync() {
+            case "$1" in
+              10|12|30|35|255) return 0 ;;
+              *) return 1 ;;
+            esac
+          }
 
-          echo "rsync deploy finished"
+          attempt=1
+          max_attempts=3
+          while true; do
+            echo "rsync deploy attempt ${attempt}/${max_attempts}"
+            set +e
+            rsync -avz --delete --checksum \
+              --exclude '.DS_Store' \
+              --exclude 'Thumbs.db' \
+              --exclude 'Desktop.ini' \
+              --exclude '*.bak' \
+              --exclude '*.tmp' \
+              --exclude '*.log' \
+              --exclude '*.map' \
+              --exclude 'node_modules/' \
+              --exclude 'vendor/' \
+              -e "ssh -i ${HOME}/.ssh/development_key -p ${DEV_SSH_PORT} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${HOME}/.ssh/known_hosts -o BatchMode=yes" \
+              "${SOURCE_THEME}/" \
+              "${DEV_SSH_USER}@${DEV_SSH_HOST}:${path}/"
+            rc=$?
+            set -e
+
+            if [ "${rc}" -eq 0 ]; then
+              echo "rsync deploy finished"
+              break
+            fi
+
+            if [ "${attempt}" -ge "${max_attempts}" ] || ! retryable_rsync "${rc}"; then
+              echo "rsync deploy failed" >&2
+              exit "${rc}"
+            fi
+
+            echo "Retryable SSH/connection error; waiting 10s"
+            sleep 10
+            attempt=$((attempt + 1))
+          done
 
       - name: Smoke test
         if: ${{ inputs.mode == 'deploy' }}
