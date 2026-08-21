@@ -2,8 +2,18 @@
 
 ## andbld AI Development OS
 
-- Version: **v0.2**
+- Version: **v0.3**
 - Updated: 2026-08-21
+
+### v0.3 変更概要
+
+- Git × XAMPP JunctionによるLocal Development一本化
+- Git working treeをSingle Source of Truth化
+- Local Setup手順をREADMEへ追加
+- LF統一ルール追加（`.gitattributes`）
+- P-0001解消
+- I-0002実施
+- D-0006 / L-0004 追加
 
 ### v0.2 変更概要
 
@@ -17,6 +27,7 @@
 
 | Version | Date | Summary |
 |---------|------|---------|
+| v0.3 | 2026-08-21 | Git × XAMPP Junction一本化。Single Source of Truth化。Local Setup / LF統一。P-0001解消（I-0002） |
 | v0.2 | 2026-08-21 | I-0001 Production deployment completed / L-0003 added。Human Review必須化。Lessons Learned開始 |
 | v0.1 | 2026-07-10 | Philosophy / 初期Decision策定 |
 
@@ -40,4 +51,3 @@
 - リポジトリ全体のバージョニング方針
 - リリース手順とバージョン更新ルール
 - WordPress 本体の対象バージョン
-- ローカル（GitHubリポジトリ ↔ XAMPP）同期ルールの確定

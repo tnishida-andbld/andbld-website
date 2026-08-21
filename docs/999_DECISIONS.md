@@ -147,3 +147,43 @@ AIは「実装者兼一次検証者」、人間は「最終Acceptance責任者�
 I-0001において、AIの実装完了報告と実UXの達成が一致しないケースが確認されたため。
 
 コード上の成立だけでなく、人間による最終Acceptanceを経ることで品質と判断の責任を明確にするため。
+
+---
+
+## D-0006
+
+### Date
+
+2026-08-21
+
+### Status
+
+Approved
+
+### Related
+
+I-0002
+P-0001
+
+### Decision
+
+ローカル開発環境は Git 管理テーマを Single Source of Truth とする。
+
+- Git working tree の `wordpress/wp-content/themes/andbld/` を唯一の編集元とする
+- XAMPP 側 `wp-content/themes/andbld` は Junction で Git 管理テーマを参照する
+- XAMPP 側にテーマの別コピーを持たない
+- 人間・Cursor・Claude Code は Git working tree を参照する
+- Devin は GitHub repository を参照する
+- localhost は Human Review 用の実行環境とする
+
+### Reason
+
+I-0001 で Git 側と XAMPP 側が別コピーだったため、
+
+AI が変更したコードと Human Review 対象コードが一致しない問題が発生した。
+
+二重管理をなくし、
+
+「AI が編集するコード = localhost で実行するコード」
+
+とするため。
