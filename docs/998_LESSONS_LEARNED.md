@@ -92,6 +92,39 @@ I-0001のdev環境への反映時、Merge Blocker解消の最後のCommitで変�
 
 ---
 
+## L-0004
+
+### Date
+
+2026-08-21
+
+### Related
+
+I-0002
+P-0001
+
+### Lesson
+
+開発ソースと実行ソースを分離しない。
+
+### Context
+
+AIが編集するファイルとHuman Reviewで確認するファイルが別コピーだと、同期漏れによって「修正済みだが画面に反映されていない」状態が発生する。
+
+I-0001 では Cursor が GitHub リポジトリを編集し、XAMPP は別コピーのテーマを実行していた。
+
+I-0002 にて XAMPP 側テーマを Git 管理テーマへの Junction とし、同一実体として一本化した。
+
+### Takeaways
+
+- Single Source of Truthを明確にする
+- ローカル実行環境はGit管理ソースを直接参照する
+- 手動コピーを開発フローに含めない
+- AIと人間が同じソースを基準に確認する
+- ローカル環境構築も再現可能な手順としてREADMEに残す
+
+---
+
 ## Pending Issues
 
 ### P-0001
@@ -103,6 +136,8 @@ I-0001のdev環境への反映時、Merge Blocker解消の最後のCommitで変�
 ### Related
 
 I-0001
+I-0002
+D-0006
 
 ### Issue
 
@@ -110,8 +145,8 @@ GitHubリポジトリ（`andbld-website`）とXAMPP実体（`C:\xampp\htdocs\and
 
 ### Status
 
-Open（開発環境の運用方法は未確定のため、正式Decisionにはしない）
+Resolved
 
 ### Note
 
-今後、ローカル開発時の同期・配置ルールを確定し、必要に応じてDecision Logへ昇格する。
+I-0002 にて、XAMPP 側 `wp-content/themes/andbld` を Git 管理テーマへの Junction とし、Git working tree を Single Source of Truth とした。運用ルールは D-0006 および README の Local Development を参照する。

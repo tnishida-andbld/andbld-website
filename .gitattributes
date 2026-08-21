@@ -1,0 +1,12 @@
+# Normalize text files to LF. Do not rely on core.autocrlf.
+* text=auto eol=lf
+
+# binary だけだと * の eol=lf が残るため、明示的に外す
+*.png binary -eol
+*.jpg binary -eol
+*.jpeg binary -eol
+*.gif binary -eol
+*.webp binary -eol
+*.ico binary -eol
+*.woff binary -eol
+*.woff2 binary -eol
