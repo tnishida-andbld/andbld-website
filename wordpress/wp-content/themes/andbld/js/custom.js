@@ -114,13 +114,13 @@ jQuery(function($){
     e.preventDefault();
   });
 
-  $(document).on('mousemove', function(e) {
+  $(document).on('mousemove.blogScroll', function(e) {
     if (!isDragging) return;
     var dx = e.pageX - startX;
     $list.scrollLeft(startScroll - dx);
   });
 
-  $(document).on('mouseup', function() {
+  $(document).on('mouseup.blogScroll', function() {
     if (!isDragging) return;
     isDragging = false;
     $list.css('cursor', '');
