@@ -1,19 +1,52 @@
-# Development theme deploy — Phase 1
-# SSH connectivity + rsync dry-run only.
-# Does not upload, delete, or backup files on Development.
+# Development theme deploy — Phase 2
+# Manual workflow_dispatch only. No push trigger.
+# mode=dry-run: Phase 1 behaviour (no remote file changes).
+# mode=deploy: backup current theme, rsync, smoke test.
 # Does not access Production.
+# Does not auto-rollback. Keep the backup and fail the job on smoke-test error.
 #
-# Future: add push to main with path filter after Human Approval of dry-run.
+# Backup timestamp is UTC (YYYYMMDDHHMMSS).
+# Backup path: ${DEV_DEPLOY_PATH}.bak-YYYYMMDDHHMMSS
+#   example: .../wp-content/themes/andbld.bak-20260821083000
+# Backup is a sibling of the live theme directory, so rsync --delete
+# cannot touch it.
+#
+# Backup generations: Phase 2 accumulates backups. It does not delete
+# old andbld.bak-* directories (no remote rm). Keep/prune is a later phase.
+#
+# Rollback (manual, do not run from this workflow):
+#   1. Identify the backup basename from the deploy log (andbld.bak-UTC).
+#   2. SSH to Development.
+#   3. Confirm live path is the Development theme directory
+#      (contains dev-20260601.andbld.co.jp and ends with
+#      /wp-content/themes/andbld).
+#   4. Rename the live theme aside, then rename the chosen backup to andbld.
+# Human Review is still required after rollback.
+#
+# Future: add push to main with path filter after Human Approval of deploy.
 # on:
 #   push:
 #     branches: [main]
 #     paths:
 #       - 'wordpress/wp-content/themes/andbld/**'
+#
+# Human Review after a successful deploy (required before Done):
+#   Development TOP, PC, SP, BLOG, CSS/JS, Console Error,
+#   changed sections, existing sections.
 
 name: Deploy to Development
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: dry-run compares only. deploy writes to Development.
+        required: true
+        type: choice
+        default: dry-run
+        options:
+          - dry-run
+          - deploy
 
 permissions:
   contents: read
@@ -23,24 +56,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  dry-run:
-    name: SSH check and rsync dry-run
+  deploy-development:
+    name: Development ${{ inputs.mode }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: development
     env:
+      DEPLOY_MODE: ${{ inputs.mode }}
       DEV_SSH_HOST: ${{ secrets.DEV_SSH_HOST }}
       DEV_SSH_USER: ${{ secrets.DEV_SSH_USER }}
       DEV_SSH_PORT: ${{ secrets.DEV_SSH_PORT }}
       DEV_SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
       DEV_SSH_KNOWN_HOSTS: ${{ secrets.DEV_SSH_KNOWN_HOSTS }}
       DEV_DEPLOY_PATH: ${{ secrets.DEV_DEPLOY_PATH }}
-      # DEV_SITE_URL is reserved for a later smoke-test phase.
+      DEV_SITE_URL: ${{ secrets.DEV_SITE_URL }}
       SOURCE_THEME: wordpress/wp-content/themes/andbld
       PRODUCTION_THEME_PATH: /home/andbld/andbld.co.jp/public_html/wp-content/themes/andbld
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: Setup SSH
         run: |
@@ -55,9 +91,18 @@ jobs:
           chmod 644 "${HOME}/.ssh/known_hosts"
           echo "SSH files prepared"
 
-      - name: Validate deploy path
+      - name: Validate mode and deploy path
         run: |
           set -euo pipefail
+          case "${DEPLOY_MODE}" in
+            dry-run|deploy) ;;
+            *)
+              echo "Mode safety check failed: mode must be dry-run or deploy" >&2
+              exit 1
+              ;;
+          esac
+          echo "Mode: ${DEPLOY_MODE}"
+
           : "${DEV_DEPLOY_PATH:?DEV_DEPLOY_PATH is missing}"
           path="${DEV_DEPLOY_PATH%/}"
 
@@ -91,6 +136,19 @@ jobs:
 
           echo "Deploy path safety check: ok"
 
+          if [ "${DEPLOY_MODE}" = "deploy" ]; then
+            : "${DEV_SITE_URL:?DEV_SITE_URL is missing}"
+            site="${DEV_SITE_URL%/}"
+            case "${site}" in
+              https://dev-20260601.andbld.co.jp|https://dev-20260601.andbld.co.jp/*) ;;
+              *)
+                echo "Site URL safety check failed: not the Development URL" >&2
+                exit 1
+                ;;
+            esac
+            echo "Development site URL safety check: ok"
+          fi
+
       - name: Check local source theme
         run: |
           set -euo pipefail
@@ -123,7 +181,61 @@ jobs:
           echo "Remote directory writable: ok"
           echo "Remote rsync exists: ok"
 
+      - name: Backup Development theme
+        if: ${{ inputs.mode == 'deploy' }}
+        run: |
+          set -euo pipefail
+          path="${DEV_DEPLOY_PATH%/}"
+          parent="${path%/*}"
+          stamp="$(date -u +%Y%m%d%H%M%S)"
+          backup="${path}.bak-${stamp}"
+          base="$(basename "${backup}")"
+
+          case "${parent}" in
+            */themes) ;;
+            *)
+              echo "Backup safety check failed: parent is not themes" >&2
+              exit 1
+              ;;
+          esac
+
+          case "${parent}" in
+            *dev-20260601.andbld.co.jp*) ;;
+            *)
+              echo "Backup safety check failed: parent is not Development" >&2
+              exit 1
+              ;;
+          esac
+
+          case "${base}" in
+            andbld.bak-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]) ;;
+            *)
+              echo "Backup safety check failed: invalid backup name" >&2
+              exit 1
+              ;;
+          esac
+
+          if [ "${backup}" = "${path}" ] || [ "${backup}" = "${PRODUCTION_THEME_PATH}" ]; then
+            echo "Backup safety check failed: backup path is not allowed" >&2
+            exit 1
+          fi
+
+          ssh \
+            -i "${HOME}/.ssh/development_key" \
+            -p "${DEV_SSH_PORT}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="${HOME}/.ssh/known_hosts" \
+            -o BatchMode=yes \
+            "${DEV_SSH_USER}@${DEV_SSH_HOST}" \
+            "test ! -e '${backup}' && cp -a '${path}' '${backup}' && test -d '${backup}'"
+
+          echo "Backup created: ${base}"
+          echo "Backup is outside the live theme directory"
+          echo "Old backups are kept (no prune in Phase 2)"
+
       - name: rsync dry-run
+        if: ${{ inputs.mode == 'dry-run' }}
         run: |
           set -euo pipefail
           path="${DEV_DEPLOY_PATH%/}"
@@ -149,3 +261,85 @@ jobs:
             "${DEV_SSH_USER}@${DEV_SSH_HOST}:${path}/"
 
           echo "rsync dry-run finished (no remote changes)"
+
+      - name: rsync deploy
+        if: ${{ inputs.mode == 'deploy' }}
+        run: |
+          set -euo pipefail
+          path="${DEV_DEPLOY_PATH%/}"
+
+          if ! command -v rsync >/dev/null; then
+            echo "rsync is missing on the runner" >&2
+            exit 1
+          fi
+
+          echo "Starting rsync deploy to Development theme directory"
+          rsync -avz --delete --checksum \
+            --exclude '.DS_Store' \
+            --exclude 'Thumbs.db' \
+            --exclude 'Desktop.ini' \
+            --exclude '*.bak' \
+            --exclude '*.tmp' \
+            --exclude '*.log' \
+            --exclude '*.map' \
+            --exclude 'node_modules/' \
+            --exclude 'vendor/' \
+            -e "ssh -i ${HOME}/.ssh/development_key -p ${DEV_SSH_PORT} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${HOME}/.ssh/known_hosts -o BatchMode=yes" \
+            "${SOURCE_THEME}/" \
+            "${DEV_SSH_USER}@${DEV_SSH_HOST}:${path}/"
+
+          echo "rsync deploy finished"
+
+      - name: Smoke test
+        if: ${{ inputs.mode == 'deploy' }}
+        run: |
+          set -euo pipefail
+          site="${DEV_SITE_URL%/}"
+          top="${site}/"
+          css="${site}/wp-content/themes/andbld/style.css"
+
+          case "${site}" in
+            https://dev-20260601.andbld.co.jp) ;;
+            *)
+              echo "Smoke test refused: URL is not Development" >&2
+              exit 1
+              ;;
+          esac
+
+          # Final HTTP status must be 2xx. Follow redirects. Discard body.
+          # Do not use curl -f as the success condition.
+          # Run curl on Development (Japan) so WordPress foreign-access
+          # restriction does not false-fail a GitHub-hosted runner.
+          # Do not print URL, secrets, body, or status codes.
+          http_code() {
+            ssh \
+              -i "${HOME}/.ssh/development_key" \
+              -p "${DEV_SSH_PORT}" \
+              -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=yes \
+              -o UserKnownHostsFile="${HOME}/.ssh/known_hosts" \
+              -o BatchMode=yes \
+              "${DEV_SSH_USER}@${DEV_SSH_HOST}" \
+              "command -v curl >/dev/null && curl -sS -L --max-time 30 -o /dev/null -w '%{http_code}' '$1' 2>/dev/null || echo 000"
+          }
+
+          check_2xx() {
+            label="$1"
+            url="$2"
+            code="$(http_code "${url}" | tr -d '\r' | tail -n 1)"
+            case "${code}" in
+              2[0-9][0-9])
+                echo "Smoke test ${label}: ok"
+                ;;
+              *)
+                echo "Smoke test ${label}: failed" >&2
+                exit 1
+                ;;
+            esac
+          }
+
+          check_2xx TOP "${top}"
+          check_2xx style.css "${css}"
+
+          echo "Deploy job finished. Human Review is still required."
+          echo "Automatic rollback is not enabled. Backup was left in place."
