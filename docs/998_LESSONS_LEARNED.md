@@ -59,6 +59,39 @@ CSSによる横スクロール自体は実装されていたが、PCではスク
 
 ---
 
+## L-0003
+
+### Date
+
+2026-08-21
+
+### Related
+
+I-0001（TOPページ BLOGセクション横スクロール改修）
+
+### Lesson
+
+デプロイ対象ファイルは「最後のCommitで変更されたファイル」ではなく、「PR全体で本番環境に反映される変更ファイル」を基準に確認する。
+
+### Context
+
+I-0001のdev環境への反映時、Merge Blocker解消の最後のCommitで変更された4ファイルのみをデプロイ対象として判断したため、PR前半で変更されていた `css/toppage-contents.css` が反映対象から漏れた。
+
+その結果、BLOGセクションの横スクロール用CSSがdev環境へ反映されず、4〜6件目の記事が縦方向に表示されるレイアウト崩れが発生した。
+
+`css/toppage-contents.css` を追加反映したことで正常化し、その後Production環境への5ファイルの反映も正常に完了した。
+
+### Takeaways
+
+- デプロイ対象は最後のCommitだけで判断しない
+- PRの Files changed 全体からデプロイ対象を確認する
+- docsなど本番実行環境に不要なファイルと、テーマ・アプリケーションファイルを分離して判断する
+- dev反映前に「Deployment Files」を明示する
+- devで正常動作を確認してからProductionへ反映する
+- Production反映後にもHuman Reviewを実施する
+
+---
+
 ## Pending Issues
 
 ### P-0001

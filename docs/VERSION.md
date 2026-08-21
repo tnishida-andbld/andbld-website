@@ -9,14 +9,15 @@
 
 - 初回実案件 I-0001 を通じた開発フロー検証
 - Human Review / Acceptanceルール追加（D-0005）
-- Lessons Learned運用開始（L-0001 / L-0002）
+- Lessons Learned運用開始（L-0001 / L-0002 / L-0003）
 - Decision Log更新
+- I-0001 Production deployment completed / L-0003 added
 
 ### 履歴
 
 | Version | Date | Summary |
 |---------|------|---------|
-| v0.2 | 2026-08-21 | I-0001反映。Human Review必須化。Lessons Learned開始 |
+| v0.2 | 2026-08-21 | I-0001 Production deployment completed / L-0003 added。Human Review必須化。Lessons Learned開始 |
 | v0.1 | 2026-07-10 | Philosophy / 初期Decision策定 |
 
 ## テーマ
