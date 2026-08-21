@@ -1,5 +1,24 @@
 # Version
 
+## andbld AI Development OS
+
+- Version: **v0.2**
+- Updated: 2026-08-21
+
+### v0.2 変更概要
+
+- 初回実案件 I-0001 を通じた開発フロー検証
+- Human Review / Acceptanceルール追加（D-0005）
+- Lessons Learned運用開始（L-0001 / L-0002）
+- Decision Log更新
+
+### 履歴
+
+| Version | Date | Summary |
+|---------|------|---------|
+| v0.2 | 2026-08-21 | I-0001反映。Human Review必須化。Lessons Learned開始 |
+| v0.1 | 2026-07-10 | Philosophy / 初期Decision策定 |
+
 ## テーマ
 
 - Theme Name: andbld
@@ -20,3 +39,4 @@
 - リポジトリ全体のバージョニング方針
 - リリース手順とバージョン更新ルール
 - WordPress 本体の対象バージョン
+- ローカル（GitHubリポジトリ ↔ XAMPP）同期ルールの確定
