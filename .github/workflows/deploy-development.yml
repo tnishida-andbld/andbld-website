@@ -1,0 +1,151 @@
+# Development theme deploy — Phase 1
+# SSH connectivity + rsync dry-run only.
+# Does not upload, delete, or backup files on Development.
+# Does not access Production.
+#
+# Future: add push to main with path filter after Human Approval of dry-run.
+# on:
+#   push:
+#     branches: [main]
+#     paths:
+#       - 'wordpress/wp-content/themes/andbld/**'
+
+name: Deploy to Development
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-development
+  cancel-in-progress: false
+
+jobs:
+  dry-run:
+    name: SSH check and rsync dry-run
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: development
+    env:
+      DEV_SSH_HOST: ${{ secrets.DEV_SSH_HOST }}
+      DEV_SSH_USER: ${{ secrets.DEV_SSH_USER }}
+      DEV_SSH_PORT: ${{ secrets.DEV_SSH_PORT }}
+      DEV_SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+      DEV_SSH_KNOWN_HOSTS: ${{ secrets.DEV_SSH_KNOWN_HOSTS }}
+      DEV_DEPLOY_PATH: ${{ secrets.DEV_DEPLOY_PATH }}
+      # DEV_SITE_URL is reserved for a later smoke-test phase.
+      SOURCE_THEME: wordpress/wp-content/themes/andbld
+      PRODUCTION_THEME_PATH: /home/andbld/andbld.co.jp/public_html/wp-content/themes/andbld
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Setup SSH
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "${HOME}/.ssh"
+          chmod 700 "${HOME}/.ssh"
+          # Do not echo secrets or key files.
+          printf '%s\n' "${DEV_SSH_PRIVATE_KEY}" | tr -d '\r' > "${HOME}/.ssh/development_key"
+          chmod 600 "${HOME}/.ssh/development_key"
+          printf '%s\n' "${DEV_SSH_KNOWN_HOSTS}" | tr -d '\r' > "${HOME}/.ssh/known_hosts"
+          chmod 644 "${HOME}/.ssh/known_hosts"
+          echo "SSH files prepared"
+
+      - name: Validate deploy path
+        run: |
+          set -euo pipefail
+          : "${DEV_DEPLOY_PATH:?DEV_DEPLOY_PATH is missing}"
+          path="${DEV_DEPLOY_PATH%/}"
+
+          case "${path}" in
+            */wp-content/themes/andbld) ;;
+            *)
+              echo "Path safety check failed: rule 1 (must end with /wp-content/themes/andbld)" >&2
+              exit 1
+              ;;
+          esac
+
+          case "${path}" in
+            *dev-20260601.andbld.co.jp*) ;;
+            *)
+              echo "Path safety check failed: rule 2 (must contain Development site identifier)" >&2
+              exit 1
+              ;;
+          esac
+
+          if [ "${path}" = "${PRODUCTION_THEME_PATH}" ]; then
+            echo "Path safety check failed: rule 3 (Production theme path is not allowed)" >&2
+            exit 1
+          fi
+
+          case "${path}" in
+            */public_html|*/themes)
+              echo "Path safety check failed: rule 4 (path is too broad)" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "Deploy path safety check: ok"
+
+      - name: Check local source theme
+        run: |
+          set -euo pipefail
+          if [ ! -d "${SOURCE_THEME}" ]; then
+            echo "Local theme directory is missing" >&2
+            exit 1
+          fi
+          echo "Local source theme: ok"
+
+      - name: SSH connectivity test
+        run: |
+          set -euo pipefail
+          : "${DEV_SSH_HOST:?DEV_SSH_HOST is missing}"
+          : "${DEV_SSH_USER:?DEV_SSH_USER is missing}"
+          : "${DEV_SSH_PORT:?DEV_SSH_PORT is missing}"
+          path="${DEV_DEPLOY_PATH%/}"
+
+          ssh \
+            -i "${HOME}/.ssh/development_key" \
+            -p "${DEV_SSH_PORT}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="${HOME}/.ssh/known_hosts" \
+            -o BatchMode=yes \
+            "${DEV_SSH_USER}@${DEV_SSH_HOST}" \
+            "test \"\$(whoami)\" = '${DEV_SSH_USER}' && test -d '${path}' && test -w '${path}' && command -v rsync >/dev/null"
+
+          echo "SSH user check: ok"
+          echo "Remote directory exists: ok"
+          echo "Remote directory writable: ok"
+          echo "Remote rsync exists: ok"
+
+      - name: rsync dry-run
+        run: |
+          set -euo pipefail
+          path="${DEV_DEPLOY_PATH%/}"
+
+          if ! command -v rsync >/dev/null; then
+            echo "rsync is missing on the runner" >&2
+            exit 1
+          fi
+
+          echo "Starting rsync dry-run (no remote changes)"
+          rsync -avzn --delete --checksum \
+            --exclude '.DS_Store' \
+            --exclude 'Thumbs.db' \
+            --exclude 'Desktop.ini' \
+            --exclude '*.bak' \
+            --exclude '*.tmp' \
+            --exclude '*.log' \
+            --exclude '*.map' \
+            --exclude 'node_modules/' \
+            --exclude 'vendor/' \
+            -e "ssh -i ${HOME}/.ssh/development_key -p ${DEV_SSH_PORT} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${HOME}/.ssh/known_hosts -o BatchMode=yes" \
+            "${SOURCE_THEME}/" \
+            "${DEV_SSH_USER}@${DEV_SSH_HOST}:${path}/"
+
+          echo "rsync dry-run finished (no remote changes)"
