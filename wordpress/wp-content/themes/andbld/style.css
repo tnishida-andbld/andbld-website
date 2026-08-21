@@ -29,7 +29,7 @@ Nicolas Gallagher and Jonathan Neal https://necolas.github.io/normalize.css/
 @import "css/headfoot.css"; /* header footer CSS */
 @import "css/firstview.css"; /* firstview CSS */
 @import "css/feed.css"; /* feed CSS */
-@import "css/toppage-contents.css"; /* toppage CSS */
+/* toppage-contents.css は functions.php で filemtime 付き enqueue（キャッシュバスト） */
 @import "css/page-contents.css"; /* page CSS */
 @import "css/single.css"; /* single CSS */
 @import "css/ebook.css"; /* ebook CSS */

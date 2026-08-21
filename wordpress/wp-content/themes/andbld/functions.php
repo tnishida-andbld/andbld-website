@@ -142,10 +142,19 @@ add_action( 'wp_enqueue_scripts', 'my_script' );
 */
 
 function my_scripts() {
-	wp_enqueue_script( 'header', get_template_directory_uri() . '/js/header.js', array(), false, true );
-	wp_enqueue_script( 'custom', get_template_directory_uri() . '/js/custom.js', array(), false, true );
-	wp_enqueue_script( 'image-slider', get_template_directory_uri() . '/js/image-slider.js', array(), false, true );
-	wp_enqueue_script( 'glossary-accordion', get_template_directory_uri() . '/js/glossary-accordion.js', array(), false, true );
+	$theme_dir = get_template_directory();
+	$theme_uri = get_template_directory_uri();
+
+	wp_enqueue_script( 'header', $theme_uri . '/js/header.js', array(), false, true );
+	wp_enqueue_script(
+		'custom',
+		$theme_uri . '/js/custom.js',
+		array( 'jquery' ),
+		filemtime( $theme_dir . '/js/custom.js' ),
+		true
+	);
+	wp_enqueue_script( 'image-slider', $theme_uri . '/js/image-slider.js', array(), false, true );
+	wp_enqueue_script( 'glossary-accordion', $theme_uri . '/js/glossary-accordion.js', array(), false, true );
 }
 add_action( 'wp_enqueue_scripts', 'my_scripts');
 
@@ -370,6 +379,17 @@ add_action( 'widgets_init', 'andbld_widgets_init' );
 function andbld_scripts() {
 	wp_enqueue_style( 'andbld-style', get_stylesheet_uri(), array(), _S_VERSION );
 	wp_style_add_data( 'andbld-style', 'rtl', 'replace' );
+
+	// toppage-contents.css は @import だと version を付けられないため個別 enqueue
+	$toppage_css = get_template_directory() . '/css/toppage-contents.css';
+	if ( file_exists( $toppage_css ) ) {
+		wp_enqueue_style(
+			'andbld-toppage-contents',
+			get_template_directory_uri() . '/css/toppage-contents.css',
+			array( 'andbld-style' ),
+			filemtime( $toppage_css )
+		);
+	}
 
 	wp_enqueue_script( 'andbld-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
 

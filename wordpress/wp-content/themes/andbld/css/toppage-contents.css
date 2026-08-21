@@ -142,27 +142,27 @@
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-list{
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	width: 100%;
-	justify-content: space-between;
 	align-items: stretch;
 	box-sizing: border-box;
+	gap: 30px;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.frontpage-container1 .content-block .content-blog-wrap .blog-list::-webkit-scrollbar{
+	display: none;
 }
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-item{
-	width: 100%;
-}
-
-.frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-item-1{
-	width: 50%;
-}
-
-.frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-item-2{
-	width: 23%;
-}
-
-.frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-item-3{
-	width: 23%;
+	flex: 0 0 calc((100% - 60px) / 3);
+	width: calc((100% - 60px) / 3);
+	max-width: calc((100% - 60px) / 3);
+	scroll-snap-align: start;
 }
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-link{
@@ -172,15 +172,21 @@
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-link .blog-img{
 	width: 100%;
-	height: 300px;
+	aspect-ratio: 16 / 9;
+	height: auto;
 	margin-bottom: 20px;
+	background-color: var(--color-gray-light);
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-link .blog-img img{
 	display: block;
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
+	object-fit: contain;
 }
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-link .blog-info{
@@ -272,6 +278,75 @@
     font-size: 1.2rem;
     color: var(--color-black);
     font-weight: bold;
+}
+
+/* Blog scroll container (PC arrow nav) */
+
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-container {
+	position: relative;
+	width: 100%;
+}
+
+/* 右端フェード：続きがあることを視覚的に示す（ボタンより背面） */
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-container::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 120px;
+	height: 100%;
+	background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(247,247,247,0.75) 55%, rgba(247,247,247,0.98) 100%);
+	pointer-events: none;
+	z-index: 2;
+	opacity: 1;
+	transition: opacity 0.3s ease;
+}
+
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-container.is-end::after {
+	opacity: 0;
+}
+
+/* スクロールナビボタン：右端中央に明確に重ねて表示 */
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-btn {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	border: none;
+	background-color: var(--color-white);
+	color: var(--color-black);
+	font-size: 1.4rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	z-index: 5;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+	transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+	padding: 0;
+	line-height: 1;
+}
+
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-btn:hover {
+	background-color: var(--color-primary);
+	color: var(--color-white);
+	box-shadow: 0 2px 10px rgba(252, 38, 41, 0.28);
+}
+
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-prev {
+	left: 12px;
+}
+
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-next {
+	right: 12px;
+}
+
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-btn.is-hidden {
+	opacity: 0;
+	pointer-events: none;
+	visibility: hidden;
 }
 
 /* News */
@@ -431,27 +506,18 @@
 }
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-list {
-	flex-direction: column;
+	flex-direction: row;
+	gap: 20px;
 }
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-list li{
-	margin-bottom: 50px;
+	margin-bottom: 0;
 }
 
-.frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-item-1 {
-    width: 100%;
-}
-
-.frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-item-2 {
-    width: 100%;
-}
-
-.frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-item-3 {
-    width: 100%;
-}
-
-.frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-link .blog-img {
-    height: 200px;
+.frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-item {
+	flex: 0 0 85%;
+	width: 85%;
+	max-width: 85%;
 }
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-list .blog-link .blog-info .blog-tag-wrap {
@@ -460,6 +526,15 @@
 
 .frontpage-container1 .content-block .content-blog-wrap .blog-btn-wrap {
 	display: block;
+}
+
+/* SPではスクロールボタン・フェードを非表示 */
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-btn {
+	display: none;
+}
+
+.frontpage-container1 .content-block .content-blog-wrap .blog-scroll-container::after {
+	display: none;
 }
 
 .frontpage-container1 .content-news {

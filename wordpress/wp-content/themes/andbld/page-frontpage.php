@@ -104,11 +104,12 @@ get_header();
             <a href="<?php echo get_post_type_archive_link('blog'); ?>" class="content-btn"><i class="fas fa-arrow-right"></i>All Blogs</a>
           </div>
           <div class="content-blog-wrap">
-            <ul class="blog-list">
+            <div class="blog-scroll-container">
+              <ul class="blog-list">
               <?php
               $args = array(
                 'post_type' => 'blog',
-                'posts_per_page' => 3,
+                'posts_per_page' => 6,
                 'orderby' => 'date',
                 'order' => 'DESC'
               );
@@ -154,7 +155,10 @@ get_header();
                 wp_reset_postdata();
               endif;
               ?>
-            </ul>
+              </ul>
+              <button type="button" class="blog-scroll-btn blog-scroll-prev is-hidden" aria-label="前へ"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+              <button type="button" class="blog-scroll-btn blog-scroll-next" aria-label="次へ"><i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+            </div><!-- /.blog-scroll-container -->
             <div class="blog-btn-wrap">
               <a href="<?php echo get_post_type_archive_link('blog'); ?>" class="blog-btn">All Blogs<i class="fas fa-arrow-right"></i></a>
             </div>
