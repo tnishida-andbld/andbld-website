@@ -50,3 +50,81 @@ jQuery(function($){
   });
 });
 
+/*
+  BLOGセクション 横スクロールナビ
+*/
+jQuery(function($){
+  var $list      = $('.content-blog .blog-list');
+  var $container = $('.content-blog .blog-scroll-container');
+  var $prev      = $('.blog-scroll-prev');
+  var $next      = $('.blog-scroll-next');
+
+  if (!$list.length) return;
+
+  // カード1枚分の幅を取得してスクロール量を決める
+  function getCardWidth() {
+    var $item = $list.find('.blog-item').first();
+    if (!$item.length) return 0;
+    var gap = parseInt($list.css('gap'), 10) || 30;
+    return $item.outerWidth() + gap;
+  }
+
+  // ボタン・フェード状態を更新
+  function updateNav() {
+    var el = $list[0];
+    var scrollLeft = $list.scrollLeft();
+    var maxScroll  = el.scrollWidth - el.clientWidth;
+    var atStart = scrollLeft <= 1;
+    var atEnd   = maxScroll <= 1 || scrollLeft >= maxScroll - 1;
+
+    $prev.toggleClass('is-hidden', atStart);
+    $next.toggleClass('is-hidden', atEnd);
+    $container.toggleClass('is-end', atEnd);
+  }
+
+  // 初期状態（レイアウト確定後）
+  updateNav();
+  $(window).on('load resize', updateNav);
+  $list.on('scroll', updateNav);
+
+  // 次へ：1カード分右へ smooth scroll
+  $next.on('click', function(e) {
+    e.preventDefault();
+    $list.stop(true).animate({ scrollLeft: $list.scrollLeft() + getCardWidth() }, 350, updateNav);
+  });
+
+  // 前へ：1カード分左へ smooth scroll
+  $prev.on('click', function(e) {
+    e.preventDefault();
+    $list.stop(true).animate({ scrollLeft: $list.scrollLeft() - getCardWidth() }, 350, updateNav);
+  });
+
+  // マウスドラッグによる横スクロール
+  var isDragging  = false;
+  var startX      = 0;
+  var startScroll = 0;
+
+  $list.on('mousedown', function(e) {
+    // ナビボタン上ではドラッグ開始しない
+    if ($(e.target).closest('.blog-scroll-btn').length) return;
+    isDragging  = true;
+    startX      = e.pageX;
+    startScroll = $list.scrollLeft();
+    $list.css('cursor', 'grabbing');
+    e.preventDefault();
+  });
+
+  $(document).on('mousemove', function(e) {
+    if (!isDragging) return;
+    var dx = e.pageX - startX;
+    $list.scrollLeft(startScroll - dx);
+  });
+
+  $(document).on('mouseup', function() {
+    if (!isDragging) return;
+    isDragging = false;
+    $list.css('cursor', '');
+    updateNav();
+  });
+});
+
