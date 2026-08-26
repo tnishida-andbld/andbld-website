@@ -2,8 +2,16 @@
 
 ## andbld AI Development OS
 
-- Version: **v0.4**
+- Version: **v0.5**
 - Updated: 2026-08-26
+
+### v0.5 変更概要
+
+- I-0003.5 引き継ぎ基盤完了（`docs/HANDOFF.md`）
+- 新セッションは HANDOFF → 現在地報告 → Human 確認後に作業
+- D-0008 / L-0007 追加
+- Current Issue なし。Next Issue は Human 確認待ち
+- Human Review: HANDOFF 到達経路を追加（L-0008）
 
 ### v0.4 変更概要
 
@@ -36,6 +44,7 @@
 
 | Version | Date | Summary |
 |---------|------|---------|
+| v0.5 | 2026-08-26 | I-0003.5 引き継ぎ基盤。HANDOFF / D-0008 / L-0007 / L-0008。Current Issue なし |
 | v0.4 | 2026-08-26 | I-0003 Development 手動デプロイ完了。GHA + rsync。D-0007 / L-0005 / L-0006。P-0002 Open |
 | v0.3 | 2026-08-21 | Git × XAMPP Junction一本化。Single Source of Truth化。Local Setup / LF統一。P-0001解消（I-0002） |
 | v0.2 | 2026-08-21 | I-0001 Production deployment completed / L-0003 added。Human Review必須化。Lessons Learned開始 |

@@ -229,3 +229,38 @@ I-0003 は、手動デプロイと Human Review まで完了し Done とする�
 I-0001 では Development / Production への反映を手動アップロードで行い、最終 Commit のファイルだけを対象にしたことで漏れが発生した（L-0003）。
 
 テーマディレクトリ全体を Git から同期することで、漏れを構造的に防ぎ、再現可能な Development 反映経路を確立するため。
+
+---
+
+## D-0008
+
+### Date
+
+2026-08-26
+
+### Status
+
+Approved
+
+### Related
+
+I-0003.5
+D-0005
+L-0007
+L-0008
+
+### Decision
+
+新しい AI セッションは、チャット履歴ではなくリポジトリ内の `docs/HANDOFF.md` から現在地を復元する。
+
+- HANDOFF は索引／スナップショットであり、Decision / Lesson / Rules / README の本文を複製しない
+- 新セッションは HANDOFF を読んだあと、現在地を Human へ報告し、確認後に指定 Issue へ進む
+- HANDOFF を読んだだけで次 Issue を選択・実装しない
+- GitHub を参照できる場合はリポジトリ上の HANDOFF を取得する。アクセスできない場合は Human へ添付を依頼し、取得前は実装しない
+- 接続情報・Secret・サーバー絶対パス・ローカル絶対パスは HANDOFF に書かない
+
+I-0003.5 は HANDOFF 新設と関連 OS 更新まで完了し Done とする。
+
+### Reason
+
+I-0001〜I-0003 の完了後も、進行中 Issue・次の一手・Issue 開始手順は会話履歴に残っており、新しいチャット／新しい AI がリポジトリだけでは現在地を復元できなかったため。

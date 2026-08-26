@@ -189,6 +189,61 @@ Smoke Test は GitHub Environment Secrets の Basic 認証を使い、リダイ�
 
 ---
 
+## L-0007
+
+### Date
+
+2026-08-26
+
+### Related
+
+I-0003.5
+D-0008
+
+### Lesson
+
+チャット履歴はプロジェクトの現在地を復元する手段にしない。
+
+### Context
+
+I-0001〜I-0003 の完了状態・次の一手・Issue 開始手順は docs に散在または未記録で、新セッションは会話履歴に依存していた。
+
+### Takeaways
+
+- 現在地は `docs/HANDOFF.md` で復元する
+- 詳細の SoT は既存 OS ドキュメント
+- 新セッションは現在地報告後、Human 確認を待つ
+
+---
+
+## L-0008
+
+### Date
+
+2026-08-26
+
+### Related
+
+I-0003.5
+D-0008
+
+### Lesson
+
+引き継ぎドキュメントが存在するだけでは不十分。新しい AI が SoT へ到達できる経路も必要。
+
+### Context
+
+コールドリードテストで、新しい ChatGPT は HANDOFF を読むべきこと・推測しないことは守れたが、GitHub へ直接アクセスできず、HANDOFF 添付を要求した。
+
+### Takeaways
+
+- HANDOFF の存在だけでなくアクセス方法も標準化する
+- GitHub 参照可能なら直接取得
+- 不可なら Human へ添付依頼
+- 取得前に過去会話から推測しない
+
+---
+
 ## Pending Issues
 
 ### P-0001
