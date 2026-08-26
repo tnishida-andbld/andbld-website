@@ -332,6 +332,9 @@ jobs:
 
       - name: Smoke test
         if: ${{ inputs.mode == 'deploy' }}
+        env:
+          DEV_BASIC_AUTH_USER: ${{ secrets.DEV_BASIC_AUTH_USER }}
+          DEV_BASIC_AUTH_PASSWORD: ${{ secrets.DEV_BASIC_AUTH_PASSWORD }}
         run: |
           set -euo pipefail
           site="${DEV_SITE_URL%/}"
@@ -346,12 +349,20 @@ jobs:
               ;;
           esac
 
+          if [ -z "${DEV_BASIC_AUTH_USER:-}" ] || [ -z "${DEV_BASIC_AUTH_PASSWORD:-}" ]; then
+            echo "Smoke test refused: Basic auth secrets are missing" >&2
+            exit 1
+          fi
+
           # Final HTTP status must be 2xx. Follow redirects. Discard body.
           # Do not use curl -f as the success condition.
           # Run curl on Development (Japan) so WordPress foreign-access
           # restriction does not false-fail a GitHub-hosted runner.
-          # Do not print URL, secrets, body, or status codes.
+          # Basic auth is required. Credentials go to remote bash via stdin
+          # (quoted), not in the ssh argv. Do not print URL, secrets, body,
+          # status codes, or Authorization headers. Do not use set -x or curl -v.
           http_code() {
+            url="$1"
             ssh \
               -i "${HOME}/.ssh/development_key" \
               -p "${DEV_SSH_PORT}" \
@@ -360,7 +371,14 @@ jobs:
               -o UserKnownHostsFile="${HOME}/.ssh/known_hosts" \
               -o BatchMode=yes \
               "${DEV_SSH_USER}@${DEV_SSH_HOST}" \
-              "command -v curl >/dev/null && curl -sS -L --max-time 30 -o /dev/null -w '%{http_code}' '$1' 2>/dev/null || echo 000"
+              bash -s <<EOF
+command -v curl >/dev/null || { echo 000; exit 0; }
+user=${DEV_BASIC_AUTH_USER@Q}
+pass=${DEV_BASIC_AUTH_PASSWORD@Q}
+url=${url@Q}
+code=\$(curl -sS -L --max-time 30 -o /dev/null -w '%{http_code}' --user "\$user:\$pass" "\$url" 2>/dev/null) || code=000
+printf '%s\n' "\$code"
+EOF
           }
 
           check_2xx() {
