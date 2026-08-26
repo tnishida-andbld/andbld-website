@@ -372,13 +372,13 @@ jobs:
               -o BatchMode=yes \
               "${DEV_SSH_USER}@${DEV_SSH_HOST}" \
               bash -s <<EOF
-command -v curl >/dev/null || { echo 000; exit 0; }
-user=${DEV_BASIC_AUTH_USER@Q}
-pass=${DEV_BASIC_AUTH_PASSWORD@Q}
-url=${url@Q}
-code=\$(curl -sS -L --max-time 30 -o /dev/null -w '%{http_code}' --user "\$user:\$pass" "\$url" 2>/dev/null) || code=000
-printf '%s\n' "\$code"
-EOF
+          if ! command -v curl >/dev/null; then echo 000; exit 0; fi
+          user=${DEV_BASIC_AUTH_USER@Q}
+          pass=${DEV_BASIC_AUTH_PASSWORD@Q}
+          url=${url@Q}
+          code=\$(curl -sS -L --max-time 30 -o /dev/null -w '%{http_code}' --user "\$user:\$pass" "\$url" 2>/dev/null) || code=000
+          printf '%s\n' "\$code"
+          EOF
           }
 
           check_2xx() {
