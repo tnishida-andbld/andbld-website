@@ -55,6 +55,8 @@ andbld.co.jp
 
 ## AI Development
 
+新セッション（ChatGPT / Cursor / Claude Code / Devin 等）は、会話履歴ではなく `docs/HANDOFF.md` から現在地を復元する。GitHub を参照できる場合はリポジトリ上のファイルを取得し、できない場合は Human に添付を依頼する（取得前は推測も実装もしない）。詳細は D-0008。
+
 現在利用中：
 
 - ChatGPT
