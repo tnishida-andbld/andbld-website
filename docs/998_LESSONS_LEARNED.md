@@ -125,6 +125,70 @@ I-0002 にて XAMPP 側テーマを Git 管理テーマへの Junction とし、
 
 ---
 
+## L-0005
+
+### Date
+
+2026-08-26
+
+### Related
+
+I-0003
+D-0007
+
+### Lesson
+
+Xserver への短時間の連続 SSH は、鍵と接続情報が正しくても失敗し得る。
+
+### Context
+
+I-0003 の Development デプロイで、SSH connectivity test と Backup は成功したあと、rsync 開始時に `kex_exchange_identification: Connection reset by peer` が発生した。接続情報そのものは正常だった。
+
+対策として、Backup 後に 10 秒待機し、接続系の終了コード（255 / 10 / 12 / 30 / 35）に限って rsync を最大 3 回リトライする構成にした。partial transfer（23）は自動リトライしない。
+
+また、SSH connectivity test が一時的に timeout し、同じ設定の Re-run で成功した。connectivity test 自体のリトライは未実装である。
+
+### Takeaways
+
+- SSH 失敗をすぐ鍵・Secrets 誤りと断定しない
+- 短時間の連続 SSH の間に待機を入れる
+- 接続確立前の失敗だけリトライする
+- 途中転送失敗（partial transfer）は自動リトライしない
+- connectivity test の単発 timeout は、まず Re-run を試す
+- 今後の改善として、connectivity test にも待機または接続系リトライを検討する
+
+---
+
+## L-0006
+
+### Date
+
+2026-08-26
+
+### Related
+
+I-0003
+D-0007
+
+### Lesson
+
+Development の HTTP 確認では、ブラウザで見えることと、認証なし curl が 2xx を返すことは別である。
+
+### Context
+
+I-0003 の Smoke Test で TOP が失敗した。Development サイトはブラウザから正常表示できた。原因は Basic 認証による HTTP 401 だった。
+
+Smoke Test は GitHub Environment Secrets の Basic 認証を使い、リダイレクト後の最終 HTTP status が 200〜299 のときだけ成功とするよう変更した。
+
+### Takeaways
+
+- 実行環境の認証を Smoke Test に含める
+- 401 をデプロイ失敗やテーマ破損と混同しない
+- 認証 Secrets は Smoke Test step のみで参照する
+- URL・本文・status・Authorization を Actions ログへ出さない
+
+---
+
 ## Pending Issues
 
 ### P-0001
@@ -150,3 +214,28 @@ Resolved
 ### Note
 
 I-0002 にて、XAMPP 側 `wp-content/themes/andbld` を Git 管理テーマへの Junction とし、Git working tree を Single Source of Truth とした。運用ルールは D-0006 および README の Local Development を参照する。
+
+---
+
+### P-0002
+
+### Date
+
+2026-08-26
+
+### Related
+
+I-0003
+D-0007
+
+### Issue
+
+`main` への push による Development 自動デプロイは、まだ有効化していない。
+
+### Status
+
+Open
+
+### Note
+
+I-0003 は `workflow_dispatch` による手動デプロイと Human Review まで完了し Done とする。path filter 付きの `main` push 自動デプロイは、別 Issue で扱う。

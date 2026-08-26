@@ -158,3 +158,13 @@ mklink /J "C:\xampp\htdocs\andbld-web\wp-content\themes\andbld" "C:\Users\nishi\
 - localhost が正常表示される
 - Git 側変更が localhost へ即時反映される
 - Git status が意図しない差分を持っていない
+
+## Development Deploy
+
+Development へのテーマ反映は GitHub Actions の手動実行です。
+
+- `main` へテーマ変更を Merge したあと、Actions の Deploy to Development を `workflow_dispatch` で実行する
+- `mode` の初期値は `dry-run`。実反映は `deploy`
+- Production はこのフローの対象外
+
+詳細は `docs/999_DECISIONS.md` の D-0007 を参照してください。
