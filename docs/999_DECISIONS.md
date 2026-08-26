@@ -187,3 +187,45 @@ AI が変更したコードと Human Review 対象コードが一致しない問
 「AI が編集するコード = localhost で実行するコード」
 
 とするため。
+
+---
+
+## D-0007
+
+### Date
+
+2026-08-26
+
+### Status
+
+Approved
+
+### Related
+
+I-0003
+D-0003
+D-0005
+D-0006
+L-0003
+
+### Decision
+
+Development環境へのテーマ反映は、Git管理テーマを Single Source of Truth とし、GitHub Actions + rsync over SSH で行う。
+
+- デプロイ対象は `wordpress/wp-content/themes/andbld/` のみ
+- 現状の実行手段は `workflow_dispatch` による手動実行のみ
+- `mode` の初期値は `dry-run`。実変更は `mode=deploy` のときだけ行う
+- `main` push による自動デプロイはまだ有効化しない（P-0002）
+- Production への自動デプロイは対象外とする
+- Development と Production の鍵・パス・URL は分離する
+- `deploy` 時は、テーマディレクトリの外へ UTC タイムスタンプ付きバックアップを作成してから rsync し、その後 Smoke Test を行う
+- GitHub Actions が成功しても Done としない。D-0005 に従い Human Review を必須とする
+- Development には Basic 認証がある。Smoke Test は GitHub Environment Secrets の認証情報を使って HTTP 2xx を確認する
+
+I-0003 は、手動デプロイと Human Review まで完了し Done とする。
+
+### Reason
+
+I-0001 では Development / Production への反映を手動アップロードで行い、最終 Commit のファイルだけを対象にしたことで漏れが発生した（L-0003）。
+
+テーマディレクトリ全体を Git から同期することで、漏れを構造的に防ぎ、再現可能な Development 反映経路を確立するため。
