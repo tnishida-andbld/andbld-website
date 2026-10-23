@@ -674,3 +674,221 @@
 
 
 }
+
+/* ABOUT statement (I-0004). Scoped so shared page-content rules stay unchanged. */
+
+.page-conteiner .about-statement .content-block-philosophy .content-heading,
+.page-conteiner .about-statement .content-block-vision .content-heading,
+.page-conteiner .about-statement .content-block-mission .content-heading{
+	font-size: 2.4rem;
+	color: var(--color-black);
+	font-weight: bold;
+	line-height: 150%;
+	margin: 0 0 30px;
+	text-align: left;
+	word-break: auto-phrase;
+}
+
+.page-conteiner .about-statement .content-block-philosophy .content-text p,
+.page-conteiner .about-statement .content-block-vision .content-text p,
+.page-conteiner .about-statement .content-block-mission .content-text p{
+	font-size: 1.6rem;
+	color: var(--color-black);
+	text-align: left;
+	font-weight: bold;
+	line-height: 170%;
+	word-break: auto-phrase;
+}
+
+@media only screen and (max-width: 768px){
+
+.about-statement .content-block .content-title{
+	margin-bottom: 30px;
+}
+
+.page-conteiner .about-statement .content-block-philosophy .content-heading,
+.page-conteiner .about-statement .content-block-vision .content-heading,
+.page-conteiner .about-statement .content-block-mission .content-heading{
+	font-size: 2rem;
+	margin-bottom: 20px;
+}
+
+.page-conteiner .about-statement .content-block-philosophy .content-text p,
+.page-conteiner .about-statement .content-block-vision .content-text p,
+.page-conteiner .about-statement .content-block-mission .content-text p{
+	font-size: 1.4rem;
+	line-height: 170%;
+}
+
+}
+
+/* ABOUT approach, values, and value cycle (I-0004). New sections only. */
+
+.page-conteiner .about-statement .content-block-approach .content-heading,
+.page-conteiner .about-statement .content-block-values .content-heading,
+.page-conteiner .about-statement .content-block-cycle .content-heading{
+	font-size: 2.4rem;
+	color: var(--color-black);
+	font-weight: bold;
+	line-height: 150%;
+	margin: 0 0 30px;
+	text-align: left;
+	word-break: auto-phrase;
+}
+
+.page-conteiner .about-statement .content-block-approach .content-text p,
+.page-conteiner .about-statement .content-block-cycle .content-text p{
+	font-size: 1.6rem;
+	color: var(--color-black);
+	text-align: left;
+	font-weight: bold;
+	line-height: 170%;
+	word-break: auto-phrase;
+}
+
+.page-conteiner .about-statement .approach-messages,
+.page-conteiner .about-statement .values-list,
+.page-conteiner .about-statement .value-cycle{
+	list-style: none;
+	margin: 0 0 30px;
+	padding: 0;
+}
+
+.page-conteiner .about-statement .approach-messages li{
+	font-size: 1.6rem;
+	font-weight: bold;
+	line-height: 170%;
+	color: var(--color-primary);
+	text-align: left;
+	word-break: auto-phrase;
+}
+
+.page-conteiner .about-statement .approach-messages li + li{
+	margin-top: 0.4em;
+}
+
+.page-conteiner .about-statement .values-list{
+	margin-bottom: 0;
+}
+
+.page-conteiner .about-statement .values-item{
+	display: flex;
+	align-items: baseline;
+	gap: 2.4rem;
+}
+
+.page-conteiner .about-statement .values-item + .values-item{
+	margin-top: 1.2rem;
+}
+
+.page-conteiner .about-statement .values-name,
+.page-conteiner .about-statement .values-text{
+	margin: 0;
+	font-size: 1.6rem;
+	font-weight: bold;
+	line-height: 170%;
+	color: var(--color-black);
+	text-align: left;
+	word-break: auto-phrase;
+}
+
+.page-conteiner .about-statement .values-name{
+	flex: 0 0 20rem;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+}
+
+.page-conteiner .about-statement .values-name-en{
+	color: var(--color-primary);
+}
+
+.page-conteiner .about-statement .values-text{
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.page-conteiner .about-statement .value-cycle{
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.8rem 0;
+}
+
+.page-conteiner .about-statement .value-cycle li{
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	font-size: 1.6rem;
+	font-weight: bold;
+	line-height: 170%;
+	color: var(--color-black);
+	white-space: nowrap;
+}
+
+.page-conteiner .about-statement .value-cycle li:not(:last-child)::after{
+	content: "→";
+}
+
+@media only screen and (max-width: 768px){
+
+.page-conteiner .about-statement .content-block-approach .content-heading,
+.page-conteiner .about-statement .content-block-values .content-heading,
+.page-conteiner .about-statement .content-block-cycle .content-heading{
+	font-size: 2rem;
+	margin-bottom: 20px;
+}
+
+.page-conteiner .about-statement .content-block-approach .content-text p,
+.page-conteiner .about-statement .content-block-cycle .content-text p{
+	font-size: 1.4rem;
+	line-height: 170%;
+}
+
+.page-conteiner .about-statement .approach-messages li,
+.page-conteiner .about-statement .values-name,
+.page-conteiner .about-statement .values-text,
+.page-conteiner .about-statement .value-cycle li{
+	font-size: 1.4rem;
+	line-height: 170%;
+}
+
+.page-conteiner .about-statement .values-item{
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.2rem;
+}
+
+.page-conteiner .about-statement .values-name{
+	flex-basis: auto;
+}
+
+.page-conteiner .about-statement .value-cycle{
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0;
+}
+
+.page-conteiner .about-statement .value-cycle li{
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.2rem;
+	white-space: normal;
+}
+
+.page-conteiner .about-statement .value-cycle li:not(:last-child)::after{
+	content: "↓";
+}
+
+}
+
+.page-conteiner .about-statement .value-cycle-image{
+	margin-bottom: 50px;
+}
+
+.page-conteiner .about-statement .value-cycle-image img{
+	display: block;
+	width: 100%;
+	max-width: 700px;
+	height: auto;
+	margin: 0 auto;
+}

@@ -11,32 +11,114 @@ $slug = $page->post_name;
 ?>
 <div class="<?php echo $slug; ?>-content">
 
+  <div class="about-statement">
+
   <section class="content-block content-block-philosophy">
     <h2 class="content-title">(PHILOSOPHY)</h2>
+    <h3 class="content-heading">テクノロジーで、社会に新しい余白を。</h3>
     <div class="content-text">
-      <p>テクノロジーで、社会に新しい余白を</p>
-      <!-- <p class="sub-philosophy-text">クライアント、従業員、そして社会と「共に創る」企業であり続ける</p> -->
+      <p>テクノロジーは、人の可能性を広げるためにある。</p>
+      <p>私たちはAIをはじめとする技術を活用し、業務の効率化や仕組み化を進めることで、人と企業に新しい「余白」を生み出します。</p>
+      <p>そして、その余白が新しい挑戦や創造につながる社会をつくります。</p>
     </div>
   </section>
 
   <section class="content-block content-block-vision">
     <h2 class="content-title">(VISION)</h2>
+    <h3 class="content-heading">生まれた余白を、挑戦へ。</h3>
     <div class="content-text">
-      <p>私たちはAIとRPAを活用して業務を革新し、生産性と効率を高めることで、人々の時間と心に新たな余白を生み出します。</p>
-      <p>その余白を未来を切り拓く挑戦や創造的な活動へとつなげ、経済的にも時間的にも豊かで、持続可能な社会の実現を目指しています。</p>
+      <p>効率化によって生まれた時間や余力を、ただの余白で終わらせない。</p>
+      <p>新しい事業、新しい働き方、新しいアイデア。</p>
+      <p>その余白を、人や企業が次の一歩を踏み出すための挑戦へ変えていきます。</p>
     </div>
   </section>
 
   <section class="content-block content-block-mission">
     <h2 class="content-title">(MISSION)</h2>
+    <h3 class="content-heading">AIと人の共創で、<br>余白を挑戦へ、挑戦を価値へ変える。</h3>
     <div class="content-text">
-      <p>■ 私たちの技術によって日本の労働生産性を高め、人口減少時代における経済の停滞を改善します。<br>業務の自動化を通じて、人々に経済的・時間的な豊かさをもたらし、持続可能で豊かな社会の実現を目指します。</p>
-      <p>■ 私たちは企業の業務をAI×RPAで自動化し、人材が重要かつ創造的な業務に集中できる環境を実現します。<br>
-			“8割の業務をAIで”という変革を可能にし、属人的な組織からの脱却と人材不足の解消を支援します。</p>
-      <p>■ 私たちは時間や場所にとらわれない柔軟な働き方を提供し、経済的な豊かさと働く意欲を高める環境を実現します。<br>
-			さらに、高品質な育成プログラムを通じて次世代のAI×RPA人材を育成し、その力を社会へ循環させることで、持続的な価値創造につなげます。</p>
+      <p>AIには、業務を効率化し、仕組みを変える力があります。</p>
+      <p>人には、考え、創造し、挑戦する力があります。</p>
+      <p>私たちはAIと人、それぞれの強みを活かしながら、企業や人の挑戦を実装し、新しい価値へ変えていきます。</p>
     </div>
   </section>
+
+  <section class="content-block content-block-approach">
+    <h2 class="content-title">(OUR APPROACH)</h2>
+    <h3 class="content-heading">挑戦を、実装する。</h3>
+    <ul class="approach-messages">
+      <li>事業を理解する。</li>
+      <li>技術で実現する。</li>
+      <li>人とAIをつなぐ。</li>
+      <li>挑戦を価値へ変える。</li>
+    </ul>
+    <div class="content-text">
+      <p>私たちは、開発だけを行う会社でも、事業を考えるだけの会社でもありません。</p>
+      <p>経営や事業の目的を理解し、必要な技術を選び、人・組織・業務・AIをつなぎながら、構想を実際に動く仕組みへ変えていきます。</p>
+      <p>そして、私たち自身も事業に挑戦し続けます。</p>
+      <p>そこで得た経験や知見を、お客様の新しい挑戦へ還元していきます。</p>
+    </div>
+  </section>
+
+  <section class="content-block content-block-values">
+    <h2 class="content-title">(VALUES)</h2>
+    <h3 class="content-heading">「&amp;」から、価値をつくる。</h3>
+    <ul class="values-list">
+      <li class="values-item">
+        <p class="values-name">&amp; <span class="values-name-en">Think Beyond</span></p>
+        <p class="values-text">常識の外側から考える。</p>
+      </li>
+      <li class="values-item">
+        <p class="values-name">&amp; <span class="values-name-en">Embrace AI</span></p>
+        <p class="values-text">AIを前提に考える。</p>
+      </li>
+      <li class="values-item">
+        <p class="values-name">&amp; <span class="values-name-en">Challenge First</span></p>
+        <p class="values-text">まず挑戦する。</p>
+      </li>
+      <li class="values-item">
+        <p class="values-name">&amp; <span class="values-name-en">Build Together</span></p>
+        <p class="values-text">一緒につくる。</p>
+      </li>
+      <li class="values-item">
+        <p class="values-name">&amp; <span class="values-name-en">Be Honest</span></p>
+        <p class="values-text">誠実である。</p>
+      </li>
+      <li class="values-item">
+        <p class="values-name">&amp; <span class="values-name-en">Create Impact</span></p>
+        <p class="values-text">価値を生み出す。</p>
+      </li>
+      <li class="values-item">
+        <p class="values-name">&amp; <span class="values-name-en">Human First</span></p>
+        <p class="values-text">人を中心に考える。</p>
+      </li>
+      <li class="values-item">
+        <p class="values-name">&amp; <span class="values-name-en">Grow Together</span></p>
+        <p class="values-text">仲間と成長する。</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="content-block content-block-cycle">
+    <h2 class="content-title">(&amp;BLD VALUE CYCLE)</h2>
+    <h3 class="content-heading">余白から、次の挑戦へ。</h3>
+    <div class="value-cycle-image">
+      <img
+        src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/andbld-value-cycle-icons.png' ); ?>"
+        alt="アンドビルドの価値創出サイクル。余白から挑戦が生まれ、価値創出、成長を経て新しい余白につながる。"
+        loading="lazy"
+        decoding="async"
+      >
+    </div>
+    <div class="content-text">
+      <p>テクノロジーによって余白を生み、その余白を新しい挑戦へ。</p>
+      <p>挑戦から価値を生み、成長へつなげる。</p>
+      <p>そして、その成長がまた新しい余白を生み出す。</p>
+      <p>私たちは、この循環を社会に広げていきます。</p>
+    </div>
+  </section>
+
+  </div>
 
   <section class="content-block content-block-outline">
     <h2 class="content-title">(OUTLINE)</h2>
@@ -64,18 +146,7 @@ $slug = $page->post_name;
         </tr>
         <tr>
           <th>事業内容</th>
-          <td>業務効率化支援事業（AI×RPAおよびWEB-SI統合開発・コンサルティング・インフラコスト削減）</td>
-        </tr>
-        <tr>
-          <th>提供サービス</th>
-          <td>
-            <ul>
-              <li>BizScan「業務プロセス分析と自動化適性診断」</li>
-              <li>CreativeForce「ソリューション設計・導入」</li>
-              <li>NextGen .Lab「AI×RPA人材の育成プログラム」</li>
-              <li>Guardian「運用・保守サポート」</li>
-            </ul>
-          </td>
+          <td>AI・Webシステム開発、業務自動化、IT・AIコンサルティング、新規事業支援、自社事業の企画・運営</td>
         </tr>
 		<!--
         <tr>
