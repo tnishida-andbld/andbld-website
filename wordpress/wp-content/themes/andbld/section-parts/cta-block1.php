@@ -5,7 +5,8 @@ if ( !is_page('contact') ) :
 <section class="footer-cta">
 	<div class="cta-container footer-cta1">
 		<div class="row">
-			<h2 class="cta-catch">AI×RPAで業務改革を。<br class="sp-only">まずはお気軽にご相談ください</h2>
+			<h2 class="cta-catch">あなたの挑戦を、次の価値へ。</h2>
+			<p class="cta-text">AI導入、Webシステム開発、業務改善、新規事業など、まずは実現したいことをお聞かせください。</p>
 			<div class="cta-btn-container">
 				<a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>" class="cta-btn">お問い合わせ<i class="fas fa-arrow-right"></i></a>
 			</div>
