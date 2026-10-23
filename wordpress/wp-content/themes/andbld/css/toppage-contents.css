@@ -2,6 +2,21 @@
 # frontpage-container1
 --------------------------------------------------------------*/
 
+/* FV copy layout (I-0004). Loaded with filemtime so it overrides cached firstview.css. */
+
+.fv-wrap .fv-catch-title p {
+	overflow-wrap: break-word;
+}
+
+.fv-wrap .fv-catch-title p.fv-catch-title-text1 {
+	margin-bottom: 20px;
+}
+
+.fv-wrap .fv-catch-title p.fv-catch-title-text2 {
+	font-size: 1.8rem;
+	line-height: 150%;
+}
+
 .frontpage-container1{
 	padding: 100px 0;
 }
@@ -20,15 +35,85 @@
 	text-align: left;
 }
 
-.frontpage-container1 .content-block .content-text{
+.frontpage-container1 .content-block .content-heading{
 	font-size: 2.4rem;
+	color: var(--color-black);
+	font-weight: bold;
+	line-height: 150%;
+	margin: 0 0 30px;
+	text-align: left;
+}
+
+.frontpage-container1 .content-block .content-text{
+	font-size: 1.6rem;
 	color: var(--color-black);
 	text-align: left;
 	font-weight: bold;
-	line-height: 150%;
+	line-height: 170%;
 }
 
-/* Service */
+.frontpage-container1 .content-block .content-more{
+	margin-top: 40px;
+}
+
+.frontpage-container1 .content-block .content-more-link{
+	font-size: 1.2rem;
+	color: var(--color-black);
+	font-weight: bold;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	transition: all 0.3s ease;
+}
+
+.frontpage-container1 .content-block .content-more-link:hover{
+	color: var(--color-primary);
+}
+
+.frontpage-container1 .content-block .content-more-link i{
+	color: var(--color-primary);
+}
+
+/* SERVICE intro — isolated from the restored 4-service list. Typography matches WHO WE ARE. */
+
+.frontpage-container1 .content-block-service .service-intro {
+	text-align: left;
+	margin-bottom: 100px;
+}
+
+.frontpage-container1 .content-block-service .service-intro-heading {
+	font-size: 2.4rem;
+	color: var(--color-black);
+	font-weight: bold;
+	line-height: 150%;
+	margin: 0 0 30px;
+	text-align: left;
+}
+
+.frontpage-container1 .content-block-service .service-intro-text {
+	font-size: 1.6rem;
+	color: var(--color-black);
+	text-align: left;
+	font-weight: bold;
+	line-height: 170%;
+}
+
+.frontpage-container1 .content-block-service .service-intro-text p {
+	margin: 0;
+}
+
+.frontpage-container1 .content-block-service .service-intro-text p + p {
+	margin-top: 0.4em;
+}
+
+/* Service — restored from origin/main (pre-I-0004).
+   Scoped .content-text reset keeps I-0004 WHO WE ARE / OUR APPROACH body styles
+   from shrinking the original 4.8rem service titles. */
+
+.frontpage-container1 .content-block-service .content-text{
+	font-size: 2.4rem;
+	line-height: 150%;
+}
 
 .frontpage-container1 .content-block .service-wrap-container-list{
 	display: flex;
@@ -461,6 +546,15 @@
 
 @media only screen and (max-width: 768px){
 
+.fv-wrap .fv-catch-container {
+	max-width: 92%;
+}
+
+.fv-wrap .fv-catch-title p.fv-catch-title-text2 {
+	font-size: 1.4rem;
+	max-width: 100%;
+}
+
 .frontpage-container1 {
 	padding: 50px 0;
 	width: var(--layout-width);
@@ -471,9 +565,32 @@
 	margin-bottom: 30px;
 }
 
+.frontpage-container1 .content-block .content-heading {
+	font-size: 2rem;
+	margin-bottom: 20px;
+}
+
 .frontpage-container1 .content-block .content-text p{
-    font-size: 1.8rem;
-	line-height: 150%;
+    font-size: 1.4rem;
+	line-height: 170%;
+}
+
+.frontpage-container1 .content-block .content-more {
+	margin-top: 30px;
+}
+
+.frontpage-container1 .content-block-service .service-intro {
+	margin-bottom: 40px;
+}
+
+.frontpage-container1 .content-block-service .service-intro-heading {
+	font-size: 2rem;
+	margin-bottom: 20px;
+}
+
+.frontpage-container1 .content-block-service .service-intro-text p {
+	font-size: 1.4rem;
+	line-height: 170%;
 }
 
 .frontpage-container1 .content-block .service-wrap-container-list .service-wrap-container .service-link .service-wrap {
