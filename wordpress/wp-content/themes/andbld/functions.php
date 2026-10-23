@@ -1630,4 +1630,97 @@ function sort_glossary_query_results($query) {
 }
 add_action('pre_get_posts', 'sort_glossary_query_results');
 
+/**
+ * I-0004: 旧4サービス詳細を、同一環境の /services/ へ301する。
+ *
+ * 判定はリクエストのフルパスのみ。スラッグ単体では判定しない。
+ * /services/ 自身、他の固定ページ・投稿・カスタム投稿には適用しない。
+ * 管理画面とカスタマイザーでは実行しない。
+ * プレビューは、対象ページを編集できるログインユーザーのときだけ通す。
+ * redirect_canonical（priority 10）より前に処理し、末尾スラッシュの有無で二段にしない。
+ */
+function andbld_current_user_can_preview_queried_page() {
+	if ( ! is_user_logged_in() || ! is_preview() ) {
+		return false;
+	}
+
+	$post_id = (int) get_queried_object_id();
+
+	if ( $post_id <= 0 && isset( $_GET['preview_id'] ) ) {
+		$preview_id = wp_unslash( $_GET['preview_id'] );
+
+		if ( is_scalar( $preview_id ) ) {
+			$post_id = (int) $preview_id;
+		}
+	}
+
+	if ( $post_id <= 0 ) {
+		return false;
+	}
+
+	$post = get_post( $post_id );
+
+	if ( ! ( $post instanceof WP_Post ) ) {
+		return false;
+	}
+
+	if ( 'revision' === $post->post_type ) {
+		$post = get_post( $post->post_parent );
+
+		if ( ! ( $post instanceof WP_Post ) ) {
+			return false;
+		}
+	}
+
+	return current_user_can( 'edit_post', $post->ID );
+}
+
+function andbld_redirect_legacy_service_urls() {
+	if ( is_admin() || wp_doing_ajax() || wp_doing_cron() ) {
+		return;
+	}
+
+	if ( is_customize_preview() ) {
+		return;
+	}
+
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+	$path        = wp_parse_url( $request_uri, PHP_URL_PATH );
+
+	if ( ! is_string( $path ) || '' === $path ) {
+		return;
+	}
+
+	$path = untrailingslashit( $path );
+
+	$home_path = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+	$home_path = is_string( $home_path ) ? untrailingslashit( $home_path ) : '';
+
+	if ( '' !== $home_path && ( $path === $home_path || 0 === strpos( $path, $home_path . '/' ) ) ) {
+		$path = substr( $path, strlen( $home_path ) );
+	}
+
+	$path = '/' . ltrim( (string) $path, '/' );
+	$path = untrailingslashit( $path );
+
+	$legacy_paths = array(
+		'/services/bizscan',
+		'/services/creativeforce',
+		'/services/guardian',
+		'/services/nextgenlab',
+	);
+
+	if ( ! in_array( $path, $legacy_paths, true ) ) {
+		return;
+	}
+
+	if ( andbld_current_user_can_preview_queried_page() ) {
+		return;
+	}
+
+	wp_safe_redirect( home_url( '/services/' ), 301 );
+	exit;
+}
+add_action( 'template_redirect', 'andbld_redirect_legacy_service_urls', 0 );
+
 
