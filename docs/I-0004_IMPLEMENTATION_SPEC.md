@@ -4,6 +4,12 @@
 
 Approved for implementation planning. Site code implementation has not started.
 
+### Revision 2026-10-25
+
+上の Status は企画承認時点の記録として残す。ローカルテーマ実装は Human Acceptance 済み（D-0009）。この文書と D-0010、D-0011、D-0012 が抵触する場合は、決定記録を正とする。抵触する当初文面は削除せず、各箇所に superseded を記す。
+
+Push、Draft PR、Development 反映、Development Human Review、Production 反映は未実施。グローバルナビ、固定ページタイトル、SEOタイトル、サイトマップは未対応であり、ここでは確定しない。
+
 ## Purpose
 
 アンドビルドのMVVおよび事業内容のアップデートに伴い、コーポレートサイトの主要コンテンツを刷新する。
@@ -55,7 +61,7 @@ Humanから共有された以下の資料をコンテンツSoTとして設計し
 - `(OUR BUSINESS)`
 - `BLOG`
 - `NEWS`
-- `Let's Build Together.`
+- `Let's Build Together.`（D-0010 により共通CTAからは外す。この例示は履歴）
 
 ### Corporate site, not LP
 
@@ -88,6 +94,8 @@ TOP / ABOUT / 事業内容ページは、過度な営業LP構成にしない。
 
 旧4URLの公開終了方法はSEO調査後にHumanが最終判断する。
 
+この文は企画時の記録。最終実装計画で4URLの301が決まり、D-0009 でローカル実装を Accept した。範囲は D-0011。
+
 ### Keep
 
 - CAREERS
@@ -102,6 +110,8 @@ TOP / ABOUT / 事業内容ページは、過度な営業LP構成にしない。
 - プラグイン
 - 旧4サービス以外のURL構造
 - title / SEO meta（別途明示承認がない限り変更しない）
+
+2026-10-25 の Acceptance にも、title / SEO の変更承認は含まれない。TOPタイトルと `/services/` のH1・ページタイトルを変えるかは未決定。
 
 ---
 
@@ -131,6 +141,8 @@ TOP / ABOUT / 事業内容ページは、過度な営業LP構成にしない。
 
 私たちは、AI・Webシステム・業務自動化などの技術と、事業を運営する実践知を掛け合わせ、構想から実装、成長まで一貫して伴走します。
 
+Superseded by D-0010。AcceptされたFVにはこの本文段落はない。Main と Sub は維持する。
+
 ## WHO WE ARE
 
 ### Label
@@ -151,6 +163,8 @@ TOP / ABOUT / 事業内容ページは、過度な営業LP構成にしない。
 ### Link
 
 ABOUT US → ABOUT
+
+Superseded by D-0010。採用文言は「私たちについて」。遷移先は `/about/`。
 
 ## SERVICE
 
@@ -182,6 +196,8 @@ TOPでは個別領域をすべて列挙しない。
 ### Link
 
 事業内容 → `/services/`
+
+Superseded by D-0010。採用導線は「01 Technical」と「02 Business」。どちらも `/services/`。要約文は維持する。
 
 ## OUR APPROACH
 
@@ -312,6 +328,8 @@ AIには、業務を効率化し、仕組みを変える力があります。
 
 `(andbld Value Cycle)`
 
+Superseded by D-0010。採用ラベルは `(&BLD VALUE CYCLE)`。Heading、Flow、Body は維持する。
+
 ### Heading
 
 余白から、次の挑戦へ。
@@ -378,6 +396,8 @@ AI・Webシステム開発、業務自動化、IT・AIコンサルティング�
 
 AI・Web・業務自動化で、企業の挑戦を実装する。
 
+Superseded by D-0010。採用見出しは「事業の挑戦を、確かな技術で実装する。」項目と項目の説明は維持する。
+
 ### Areas
 
 1. AI開発・導入支援
@@ -401,6 +421,8 @@ AI・Web・業務自動化で、企業の挑戦を実装する。
 
 事業を考え、つくり、育てる。
 
+Superseded by D-0010。採用見出しは「事業の構想から成長まで、実践知で伴走する。」4領域は維持する。説明文の正は Phase 3 の `template-parts/inc/services-page.php`。
+
 ### Client-facing areas
 
 1. IT・AIコンサルティング
@@ -415,6 +437,8 @@ AI・Web・業務自動化で、企業の挑戦を実装する。
 ### Heading
 
 自ら事業をつくる。
+
+Superseded by D-0010。採用見出しは「私たち自身も、挑戦し続ける。」本文も Phase 3 のテンプレートを正とする。3分類と、個別ページを作らない方針は維持する。
 
 ### Body
 
@@ -459,9 +483,13 @@ EC、海外事業、商品開発などを通じて得た実践知を、コンサ
 
 # Common CTA
 
+D-0010 を正とする。Main と Body は維持する。英語見出しは表示しない。PC / SP とも左揃え。ボタンは「お問い合わせ」で `/contact/`。`/contact/` では出さない。
+
 ### English
 
 Let's Build Together.
+
+Superseded by D-0010。上記英語見出しは表示しない。
 
 ### Main
 
@@ -484,7 +512,7 @@ AI導入、Webシステム開発、業務改善、新規事業など、まずは
 - URL: `/services/` を維持
 
 現行テーマは `wp_nav_menu()` を使用しているため、メニュー文言がWordPress管理画面側で管理されている可能性がある。
-実装時に実体を確認し、テーマへ不要なハードコードを追加しない。
+実装時に実体を確認し、テーマへ不要なハードコードを追加しない。2026-10-25 時点では未実施。変更先「事業内容」は撤回していない。実施時期は未決定。
 
 ---
 
@@ -503,6 +531,8 @@ Human Decision:
 - ページテンプレートは将来の再利用候補として残す。
 - URL処理は現状調査後に決める。
 - AIが独断で削除・301・410等を決定しない。
+
+この「URL処理は調査後に決める」は、最終実装計画の301決定で更新済み。D-0009 の Acceptance はその301を含む。D-0011 により、対象は4パスのみで、派生URLは今回の対象外。派生URLの将来の扱いは未決定。
 
 調査項目:
 
@@ -565,9 +595,9 @@ Human Decision:
 - ABOUTが新MVVと一致している
 - 事業内容ページが新しい事業構成と一致している
 - 旧4サービスが現行サービスとして主要導線に表示されていない
-- グローバルナビが「事業内容」表記になっている
+- グローバルナビが「事業内容」表記になっている（未達。撤回していない。実施時期は未決定）
 - 日本語中心の表現ルールが守られている
-- 対象3ページから旧AI×RPA中心の企業説明が適切に除去されている
+- 対象3ページから旧AI×RPA中心の企業説明が適切に除去されている（本文は更新済み。SEOタイトルは未変更で、変更するかは未決定）
 - 共通CTAが新コピーへ更新されている
 
 ## UI / Human Review

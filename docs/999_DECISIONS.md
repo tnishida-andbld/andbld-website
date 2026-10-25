@@ -264,3 +264,188 @@ I-0003.5 は HANDOFF 新設と関連 OS 更新まで完了し Done とする。
 ### Reason
 
 I-0001〜I-0003 の完了後も、進行中 Issue・次の一手・Issue 開始手順は会話履歴に残っており、新しいチャット／新しい AI がリポジトリだけでは現在地を復元できなかったため。
+
+---
+
+## D-0009
+
+### Date
+
+2026-10-25
+
+### Status
+
+Approved
+
+### Related
+
+I-0004
+D-0005
+D-0007
+`docs/I-0004_FINAL_IMPLEMENTATION_PLAN.md`
+`docs/I-0004_IMPLEMENTATION_SPEC.md`
+
+### Decision
+
+I-0004 のローカルテーマ実装6 Commitを Human Acceptance とする。ブランチは `feature/i-0004-site-content-update`。
+
+| Phase | Commit | 内容 |
+|---|---|---|
+| 1 TOP | `56a044fa959361a59959d09f56c17e0f5df9aba9` | ホームページ |
+| 2 ABOUT | `4aa04ffb90d8e70b71766db3a914b12f3fbe1023` | About |
+| 3 SERVICES | `acce8a9a4ef4eef230d9d7b595ca2f5401e5924a` | 事業内容ページ |
+| 4 共通CTA | `7008cf34be8c1a9e177ded50f624a99a17d9b1e5` | 共通CTA |
+| 4-B 301 | `dc99fb8d9831cd9b7b37c9151fd0d3e44d06f2ac` | 旧4パスの301 |
+| CSSキャッシュ | `70c316e5f6c9df4b4702bb75a9de5df52f921330` | D-0012 |
+
+文言の正は D-0010。301の範囲は D-0011。CSSの読み込みは D-0012。
+
+I-0004 は Done にしない。次は未実施である。
+
+- GitHub への Push
+- Draft PR
+- Development への反映
+- Development Human Review
+- Production への反映
+
+次も未対応であり、この決定では実施時期も変更可否も確定しない。
+
+- ナビゲーション「サービス」→「事業内容」（計画上の変更先は維持。未実施）
+- `/services/` の H1 と固定ページタイトル
+- TOP の SEOタイトル（明示承認なしに変えない、は維持）
+- サイトマップからの旧4URL除外
+- ログイン済み旧ページプレビューの確認
+- Development / Production のキャッシュ確認
+- その他の CSS `@import` のキャッシュ管理
+
+### Reason
+
+ローカル実装の Acceptance と、未反映・未決定を分けて記録しないと、テーマ実装済みを Issue 完了や本番反映と誤読するため。
+
+---
+
+## D-0010
+
+### Date
+
+2026-10-25
+
+### Status
+
+Approved
+
+### Related
+
+I-0004
+D-0009
+
+### Decision
+
+Accept されたテーマ実装の文言を、I-0004 のコンテンツ SoT とする。企画時の文面は仕様書と最終計画に履歴として残す。抵触箇所は本決定が優先する。
+
+TOP:
+
+- FVは「挑戦を、実装する。」と「事業を理解し、技術で実現し、人とAIをつなぐ。」仕様書のFV本文段落は採用しない
+- WHO WE ARE のリンクは「私たちについて」→ `/about/`。仕様書の「ABOUT US」は更新する
+- SERVICE は「01 Technical」「02 Business」。どちらも `/services/`。仕様書の「事業内容」リンク文言は更新する
+- 構成は FV、WHO WE ARE、SERVICE、OUR APPROACH、BLOG、NEWS、共通CTA
+
+ABOUT:
+
+- PHILOSOPHY、VISION、MISSION、OUR APPROACH、VALUES の文言は仕様書どおり
+- バリューサイクルのラベルは `(&BLD VALUE CYCLE)`。計画と仕様の `(andbld Value Cycle)` を更新する
+- 見出し「余白から、次の挑戦へ。」と本文、OUTLINE の事業内容は計画どおり
+
+SERVICES:
+
+- 導入見出しと本文、技術7項目、事業4領域、OUR BUSINESS の3分類、OUR APPROACH の5段階は維持する
+- TECHNOLOGY の見出しは「事業の挑戦を、確かな技術で実装する。」
+- BUSINESS の見出しは「事業の構想から成長まで、実践知で伴走する。」
+- OUR BUSINESS の見出しは「私たち自身も、挑戦し続ける。」
+- 仕様書の旧見出しと OUR BUSINESS 本文は更新する。説明文の正は `acce8a9a4ef4eef230d9d7b595ca2f5401e5924a` の `template-parts/inc/services-page.php`
+- 個別の OUR BUSINESS ページは作らない
+
+共通CTA:
+
+- 英語見出し「Let's Build Together.」は表示しない。計画と仕様の英語見出しを更新する
+- 主文は「あなたの挑戦を、次の価値へ。」
+- 本文は「AI導入、Webシステム開発、業務改善、新規事業など、まずは実現したいことをお聞かせください。」
+- PC / SP とも左揃え。ボタン内の文字は中央
+- ボタンは「お問い合わせ」。遷移先は `/contact/`
+- `/contact/` では共通CTAを出さない
+- ボタンコンテナの下余白は 30px。セクション既存の下パディングは維持する
+
+### Reason
+
+実装レビューでCTAの英語見出し削除と左揃えが確定し、その後の Acceptance でテーマ上の文言が確定したため。企画文書に旧文面を残すと、次の実装が旧CTAへ戻る。
+
+---
+
+## D-0011
+
+### Date
+
+2026-10-25
+
+### Status
+
+Approved
+
+### Related
+
+I-0004
+D-0009
+最終実装計画の Legacy Service URL Decision
+
+### Decision
+
+旧URLの301は、次の4パスだけを対象とする。末尾スラッシュの有無は同一対象とする。
+
+- `/services/bizscan/`
+- `/services/creativeforce/`
+- `/services/guardian/`
+- `/services/nextgenlab/`
+
+転送先は同一環境の `/services/`。ステータスは 301。Production のURLはハードコードしない。
+
+`/services/bizscan/feed/` のような派生URLは、今回の301に含めない。派生URLを将来301にするかは未決定。
+
+未ログインの `?preview=true` は301する。ログイン済みで編集できるプレビューを301から外す実装はある。その動作確認は未了であり、本決定は確認済みとはしない。
+
+### Reason
+
+最終計画は4URLの301を既に決めていた。フィード等まで広げる判断はしておらず、Acceptance の範囲も4パスのため。
+
+---
+
+## D-0012
+
+### Date
+
+2026-10-25
+
+### Status
+
+Approved
+
+### Related
+
+I-0004
+D-0009
+
+### Decision
+
+I-0004 で変更した CSS が、更新後に再取得されるようにする。
+
+- `headfoot.css` と `page-contents.css` を `style.css` の `@import` から外す
+- `toppage-contents.css` と同じく、`wp_enqueue_style()` と `filemtime()` で読む
+- `style.css` のクエリバージョンも `filemtime()` にする。固定の `1.0.0` のままだと、古い `style.css` が `@import` を残す
+- 順は `style.css`、`headfoot.css`、`page-contents.css`、`toppage-contents.css`
+- 各ファイルは1回だけ読む
+- variable、base、layout、firstview、feed、single、ebook、custom の `@import` は変えない
+
+残りの `@import` を同じ方式にするかは未決定。Development と Production のキャッシュ実地確認も未了。
+
+### Reason
+
+`style.css?ver=1.0.0` の `@import` は、子CSSのURLにバージョンが付かない。ブラウザが旧 `headfoot.css` を持つと、Accept 済みのCTA色と余白が旧デザインになるため。
