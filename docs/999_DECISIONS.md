@@ -322,6 +322,10 @@ I-0004 は Done にしない。次は未実施である。
 
 ローカル実装の Acceptance と、未反映・未決定を分けて記録しないと、テーマ実装済みを Issue 完了や本番反映と誤読するため。
 
+### Subsequent record
+
+この本文は 2026-10-25 のローカル Acceptance 時点の記録である。上の「未実施」リストは、その時点の記録として残す。その後の実施状況は D-0013。
+
 ---
 
 ## D-0010
@@ -449,3 +453,56 @@ I-0004 で変更した CSS が、更新後に再取得されるようにする�
 ### Reason
 
 `style.css?ver=1.0.0` の `@import` は、子CSSのURLにバージョンが付かない。ブラウザが旧 `headfoot.css` を持つと、Accept 済みのCTA色と余白が旧デザインになるため。
+
+---
+
+## D-0013
+
+### Date
+
+2026-10-25
+
+### Status
+
+Approved
+
+### Related
+
+I-0004
+D-0005
+D-0007
+D-0009
+D-0011
+D-0012
+
+### Decision
+
+D-0009 の本文はローカル Acceptance 時点の記録として残す。その後、次まで完了した。
+
+- I-0004 の確定仕様に対するテーマ実装は完了している
+- 承認済みの実装は Push 済みである
+- Development への反映は完了している。一時 inspect の追加と削除は workflow のみで、UAT 対象のテーマファイルは変えていない
+- Development UAT は 10 項目すべて PASS である
+- 一時 inspect mode の削除は完了している。workflow に inspect は残っていない
+- GitHub Environment `development` の Deployment branches は `main` のみに戻している。一時追加した `feature/i-0004-site-content-update` の許可は削除済みである
+- PR #10（`feature/i-0004-site-content-update` → `main`）は OPEN / Draft である。Ready for Review も Merge もしていない
+
+Production への反映は未実施であり、未承認である。
+
+I-0004 は Done にしない。Production が未承認であるため。
+
+D-0009 で未決定のまま残したものは、この記録でも確定しない。
+
+- ナビゲーション「サービス」→「事業内容」
+- `/services/` の H1 と固定ページタイトル
+- TOP の SEOタイトル
+- サイトマップからの旧4URL除外
+- ログイン済み旧ページプレビューの確認
+- Production の CSS キャッシュ確認
+- その他の CSS `@import` のキャッシュ管理
+
+Development の CSS キャッシュは、UAT の対象として PASS である。Production のキャッシュ確認は D-0012 のとおり未了である。
+
+### Reason
+
+Acceptance 後の Push、Development 反映、UAT、一時 inspect の削除、Environment の許可ブランチ復元が完了したため。D-0009 の「未実施」を書き換えると、当時何が未実施だったかが残らない。Production 未承認のまま Done にすると、本番反映済みと誤読するため。

@@ -67,7 +67,7 @@ get_header();
           <div class="content-text">
             <ul class="service-wrap-container-list">
               <li class="service-wrap-container">
-                <a href="<?php echo home_url('/services/'); ?>" class="service-link">
+                <a href="<?php echo esc_url( home_url( '/services/' ) ); ?>" class="service-link">
                   <div class="service-wrap">
                     <p class="service-num">01</p>
                     <p class="service-title">Technical</p>
@@ -77,7 +77,7 @@ get_header();
                 </a>
               </li>
               <li class="service-wrap-container">
-                <a href="<?php echo home_url('/services/'); ?>" class="service-link">
+                <a href="<?php echo esc_url( home_url( '/services/' ) ); ?>" class="service-link">
                   <div class="service-wrap">
                     <p class="service-num">02</p>
                     <p class="service-title">Business</p>
