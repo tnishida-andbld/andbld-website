@@ -1,6 +1,7 @@
 # Development theme deploy — Phase 2
 # Manual workflow_dispatch only. No push trigger.
 # mode=dry-run: Phase 1 behaviour (no remote file changes).
+# mode=inspect: read-only hashes and metadata for the I-0004 files. No remote writes.
 # mode=deploy: backup current theme, rsync, smoke test.
 # Does not access Production.
 # Does not auto-rollback. Keep the backup and fail the job on smoke-test error.
@@ -40,12 +41,13 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: dry-run compares only. deploy writes to Development.
+        description: dry-run compares only. inspect reads Development hashes and metadata. deploy writes to Development.
         required: true
         type: choice
         default: dry-run
         options:
           - dry-run
+          - inspect
           - deploy
 
 permissions:
@@ -95,9 +97,9 @@ jobs:
         run: |
           set -euo pipefail
           case "${DEPLOY_MODE}" in
-            dry-run|deploy) ;;
+            dry-run|inspect|deploy) ;;
             *)
-              echo "Mode safety check failed: mode must be dry-run or deploy" >&2
+              echo "Mode safety check failed: mode must be dry-run, inspect, or deploy" >&2
               exit 1
               ;;
           esac
@@ -180,6 +182,414 @@ jobs:
           echo "Remote directory exists: ok"
           echo "Remote directory writable: ok"
           echo "Remote rsync exists: ok"
+
+      - name: Inspect Development theme
+        if: ${{ inputs.mode == 'inspect' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          CANDIDATE_SHA=be11488f9c75f7fe1a79fb6ac6ed999ff80e7a89
+          DEPLOYED_SHA=248943978ca8d6cea51b8fee7e2ded65cbdda6b1
+          files=(
+            functions.php
+            page-frontpage.php
+            style.css
+            css/headfoot.css
+            css/page-contents.css
+            css/toppage-contents.css
+            section-parts/cta-block1.php
+            template-parts/inc/about-page.php
+            template-parts/inc/services-page.php
+            assets/images/andbld-value-cycle-icons.png
+          )
+          dirs=(
+            .
+            assets
+            assets/images
+            css
+            section-parts
+            template-parts
+            template-parts/inc
+            img
+            inc
+            js
+            languages
+          )
+
+          : "${DEV_DEPLOY_PATH:?DEV_DEPLOY_PATH is missing}"
+          : "${GITHUB_TOKEN:?GITHUB_TOKEN is missing}"
+          path="${DEV_DEPLOY_PATH%/}"
+
+          case "${path}" in
+            */wp-content/themes/andbld) ;;
+            *)
+              echo "Path safety check failed: rule 1 (must end with /wp-content/themes/andbld)" >&2
+              exit 1
+              ;;
+          esac
+          case "${path}" in
+            *dev-20260601.andbld.co.jp*) ;;
+            *)
+              echo "Path safety check failed: rule 2 (must contain Development site identifier)" >&2
+              exit 1
+              ;;
+          esac
+          if [ "${path}" = "${PRODUCTION_THEME_PATH}" ]; then
+            echo "Path safety check failed: rule 3 (Production theme path is not allowed)" >&2
+            exit 1
+          fi
+          case "${path}" in
+            */public_html|*/themes)
+              echo "Path safety check failed: rule 4 (path is too broad)" >&2
+              exit 1
+              ;;
+          esac
+
+          head_sha="$(git rev-parse HEAD)"
+          if [ "${head_sha}" != "${CANDIDATE_SHA}" ]; then
+            echo "Inspect refused: checkout does not match the candidate commit" >&2
+            exit 1
+          fi
+
+          work="$(mktemp -d)"
+          trap 'rm -rf "${work}"' EXIT
+
+          for rel in "${files[@]}"; do
+            case "${rel}" in
+              /*|*..*)
+                echo "Relative path refused" >&2
+                exit 1
+                ;;
+            esac
+            if [ ! -f "${SOURCE_THEME}/${rel}" ]; then
+              echo "Inspect refused: candidate file is missing (${rel})" >&2
+              exit 1
+            fi
+            blob_sum="$(git cat-file blob "HEAD:${SOURCE_THEME}/${rel}" | sha256sum)"
+            blob_sum="${blob_sum%% *}"
+            work_sum="$(sha256sum "${SOURCE_THEME}/${rel}")"
+            work_sum="${work_sum%% *}"
+            if [ "${blob_sum}" != "${work_sum}" ]; then
+              echo "Inspect refused: working tree does not match candidate commit (${rel})" >&2
+              exit 1
+            fi
+            printf '%s\n' "${work_sum}" > "${work}/candidate.$(printf '%s' "${rel}" | sha256sum | awk '{print $1}')"
+
+            body="${work}/deployed.body"
+            code="$(curl -sS --max-time 30 -o "${body}" -w '%{http_code}' \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.raw" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/${SOURCE_THEME}/${rel}?ref=${DEPLOYED_SHA}")" || {
+              echo "Git content request failed (${rel})" >&2
+              exit 1
+            }
+            case "${code}" in
+              200)
+                deployed_sum="$(sha256sum "${body}")"
+                deployed_sum="${deployed_sum%% *}"
+                ;;
+              404)
+                deployed_sum="ABSENT"
+                ;;
+              *)
+                echo "Git content request failed (${rel}) status ${code}" >&2
+                exit 1
+                ;;
+            esac
+            rm -f "${body}"
+            key="$(printf '%s' "${rel}" | sha256sum | awk '{print $1}')"
+            printf '%s\n' "${deployed_sum}" > "${work}/deployed.${key}"
+          done
+          echo "Candidate tree check: ok"
+
+          ssh \
+            -i "${HOME}/.ssh/development_key" \
+            -p "${DEV_SSH_PORT}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="${HOME}/.ssh/known_hosts" \
+            -o BatchMode=yes \
+            "${DEV_SSH_USER}@${DEV_SSH_HOST}" \
+            "bash -s -- '${path}'" > "${work}/remote.tsv" <<'EOF'
+          set -euo pipefail
+          theme="$1"
+          case "${theme}" in
+            */wp-content/themes/andbld) ;;
+            *)
+              echo "Path safety check failed: rule 1" >&2
+              exit 1
+              ;;
+          esac
+          case "${theme}" in
+            *dev-20260601.andbld.co.jp*) ;;
+            *)
+              echo "Path safety check failed: rule 2" >&2
+              exit 1
+              ;;
+          esac
+          if [ "${theme}" = "/home/andbld/andbld.co.jp/public_html/wp-content/themes/andbld" ]; then
+            echo "Path safety check failed: rule 3 (Production theme path is not allowed)" >&2
+            exit 1
+          fi
+          case "${theme}" in
+            */public_html|*/themes)
+              echo "Path safety check failed: rule 4" >&2
+              exit 1
+              ;;
+          esac
+          cd "${theme}" || {
+            echo "Theme directory is not accessible" >&2
+            exit 1
+          }
+          command -v stat >/dev/null 2>&1 || {
+            echo "stat is missing" >&2
+            exit 1
+          }
+          command -v sha256sum >/dev/null 2>&1 || {
+            echo "sha256sum is missing" >&2
+            exit 1
+          }
+
+          files=(
+            functions.php
+            page-frontpage.php
+            style.css
+            css/headfoot.css
+            css/page-contents.css
+            css/toppage-contents.css
+            section-parts/cta-block1.php
+            template-parts/inc/about-page.php
+            template-parts/inc/services-page.php
+            assets/images/andbld-value-cycle-icons.png
+          )
+          dirs=(
+            .
+            assets
+            assets/images
+            css
+            section-parts
+            template-parts
+            template-parts/inc
+            img
+            inc
+            js
+            languages
+          )
+
+          for rel in "${files[@]}"; do
+            case "${rel}" in
+              /*|*..*)
+                echo "Relative path refused" >&2
+                exit 1
+                ;;
+            esac
+            if [ -L "${rel}" ]; then
+              echo "Inspect refused: symlink (${rel})" >&2
+              exit 1
+            fi
+            if [ -f "${rel}" ]; then
+              mode="$(stat -c '%a' "${rel}")"
+              owner="$(stat -c '%U' "${rel}")"
+              group="$(stat -c '%G' "${rel}")"
+              size="$(stat -c '%s' "${rel}")"
+              mtime="$(stat -c '%Y' "${rel}")"
+              sum="$(sha256sum -- "${rel}")"
+              sum="${sum%% *}"
+              printf 'FILE\t%s\tEXISTS\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+                "${rel}" "${mode}" "${owner}" "${group}" "${size}" "${mtime}" "${sum}"
+            else
+              printf 'FILE\t%s\tABSENT\n' "${rel}"
+            fi
+          done
+
+          for rel in "${dirs[@]}"; do
+            case "${rel}" in
+              /*|*..*)
+                echo "Relative path refused" >&2
+                exit 1
+                ;;
+            esac
+            if [ -L "${rel}" ]; then
+              echo "Inspect refused: symlink (${rel})" >&2
+              exit 1
+            fi
+            if [ -d "${rel}" ]; then
+              mode="$(stat -c '%a' "${rel}")"
+              owner="$(stat -c '%U' "${rel}")"
+              group="$(stat -c '%G' "${rel}")"
+              mtime="$(stat -c '%Y' "${rel}")"
+              printf 'DIR\t%s\tEXISTS\t%s\t%s\t%s\t%s\n' \
+                "${rel}" "${mode}" "${owner}" "${group}" "${mtime}"
+            else
+              printf 'DIR\t%s\tABSENT\n' "${rel}"
+            fi
+          done
+          EOF
+
+          echo "candidate=${CANDIDATE_SHA}"
+          echo "deployed=${DEPLOYED_SHA}"
+          declare -A file_seen=()
+          declare -A dir_seen=()
+          seen_files=0
+          seen_dirs=0
+          while IFS= read -r line || [ -n "${line}" ]; do
+            [ -n "${line}" ] || continue
+            kind="$(printf '%s' "${line}" | awk -F '\t' '{print $1}')"
+            rel="$(printf '%s' "${line}" | awk -F '\t' '{print $2}')"
+            state="$(printf '%s' "${line}" | awk -F '\t' '{print $3}')"
+            case "${kind}" in
+              FILE)
+                allowed=0
+                for expect in "${files[@]}"; do
+                  if [ "${rel}" = "${expect}" ]; then
+                    allowed=1
+                  fi
+                done
+                if [ "${allowed}" -ne 1 ] || [ -n "${file_seen[${rel}]+x}" ]; then
+                  echo "Unexpected inspect record" >&2
+                  exit 1
+                fi
+                file_seen["${rel}"]=1
+                key="$(printf '%s' "${rel}" | sha256sum | awk '{print $1}')"
+                candidate_sum="$(cat "${work}/candidate.${key}")"
+                deployed_sum="$(cat "${work}/deployed.${key}")"
+                if [ "${state}" = "ABSENT" ]; then
+                  verdict="ABSENT"
+                  printf 'FILE\t%s\t%s\tgit_deployed=%s\tgit_candidate=%s\n' \
+                    "${rel}" "${verdict}" "${deployed_sum}" "${candidate_sum}"
+                elif [ "${state}" = "EXISTS" ]; then
+                  mode="$(printf '%s' "${line}" | awk -F '\t' '{print $4}')"
+                  owner="$(printf '%s' "${line}" | awk -F '\t' '{print $5}')"
+                  group="$(printf '%s' "${line}" | awk -F '\t' '{print $6}')"
+                  size="$(printf '%s' "${line}" | awk -F '\t' '{print $7}')"
+                  mtime="$(printf '%s' "${line}" | awk -F '\t' '{print $8}')"
+                  remote_sum="$(printf '%s' "${line}" | awk -F '\t' '{print $9}')"
+                  case "${mode}" in
+                    [0-9][0-9][0-9]|[0-9][0-9][0-9][0-9]) ;;
+                    *)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  case "${size}" in
+                    *[!0-9]*)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  case "${mtime}" in
+                    *[!0-9]*)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  case "${owner}" in
+                    ''|*[!A-Za-z0-9_.-]*)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  case "${group}" in
+                    ''|*[!A-Za-z0-9_.-]*)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  case "${remote_sum}" in
+                    *[!0-9a-f]*)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  if [ "${#remote_sum}" -ne 64 ]; then
+                    echo "Unexpected inspect record" >&2
+                    exit 1
+                  fi
+                  if [ "${remote_sum}" = "${candidate_sum}" ]; then
+                    verdict="MATCH_CANDIDATE"
+                  elif [ "${deployed_sum}" != "ABSENT" ] && [ "${remote_sum}" = "${deployed_sum}" ]; then
+                    verdict="MATCH_DEPLOYED"
+                  else
+                    verdict="DIFFER_BOTH"
+                  fi
+                  note=""
+                  if [ "${verdict}" = "MATCH_CANDIDATE" ] && [ "${deployed_sum}" != "ABSENT" ] && [ "${remote_sum}" = "${deployed_sum}" ]; then
+                    note=$'\tsame_as_deployed=yes'
+                  fi
+                  printf 'FILE\t%s\t%s\tmode=%s\towner=%s\tgroup=%s\tsize=%s\tmtime=%s\tremote=%s\tdeployed=%s\tcandidate=%s%b\n' \
+                    "${rel}" "${verdict}" "${mode}" "${owner}" "${group}" "${size}" "${mtime}" "${remote_sum}" "${deployed_sum}" "${candidate_sum}" "${note}"
+                else
+                  echo "Unexpected inspect record" >&2
+                  exit 1
+                fi
+                seen_files=$((seen_files + 1))
+                ;;
+              DIR)
+                allowed=0
+                for expect in "${dirs[@]}"; do
+                  if [ "${rel}" = "${expect}" ]; then
+                    allowed=1
+                  fi
+                done
+                if [ "${allowed}" -ne 1 ] || [ -n "${dir_seen[${rel}]+x}" ]; then
+                  echo "Unexpected inspect record" >&2
+                  exit 1
+                fi
+                dir_seen["${rel}"]=1
+                if [ "${state}" = "ABSENT" ]; then
+                  printf 'DIR\t%s\tABSENT\n' "${rel}"
+                elif [ "${state}" = "EXISTS" ]; then
+                  mode="$(printf '%s' "${line}" | awk -F '\t' '{print $4}')"
+                  owner="$(printf '%s' "${line}" | awk -F '\t' '{print $5}')"
+                  group="$(printf '%s' "${line}" | awk -F '\t' '{print $6}')"
+                  mtime="$(printf '%s' "${line}" | awk -F '\t' '{print $7}')"
+                  case "${mode}" in
+                    [0-9][0-9][0-9]|[0-9][0-9][0-9][0-9]) ;;
+                    *)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  case "${mtime}" in
+                    *[!0-9]*)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  case "${owner}" in
+                    ''|*[!A-Za-z0-9_.-]*)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  case "${group}" in
+                    ''|*[!A-Za-z0-9_.-]*)
+                      echo "Unexpected inspect record" >&2
+                      exit 1
+                      ;;
+                  esac
+                  printf 'DIR\t%s\tmode=%s\towner=%s\tgroup=%s\tmtime=%s\n' \
+                    "${rel}" "${mode}" "${owner}" "${group}" "${mtime}"
+                else
+                  echo "Unexpected inspect record" >&2
+                  exit 1
+                fi
+                seen_dirs=$((seen_dirs + 1))
+                ;;
+              *)
+                echo "Unexpected inspect record" >&2
+                exit 1
+                ;;
+            esac
+          done < "${work}/remote.tsv"
+
+          if [ "${seen_files}" -ne "${#files[@]}" ] || [ "${seen_dirs}" -ne "${#dirs[@]}" ]; then
+            echo "Inspect record count mismatch" >&2
+            exit 1
+          fi
+          echo "Inspect finished (no remote changes)"
 
       - name: Backup Development theme
         if: ${{ inputs.mode == 'deploy' }}
