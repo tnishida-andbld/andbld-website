@@ -160,17 +160,28 @@
 .footer-cta1{
 	width: var(--layout-width);
 	margin: 0 auto;
+	text-align: left;
+	overflow-wrap: break-word;
 }
 
 .footer-cta1 .cta-catch{
 	text-align: left;
-	color: var(--color-white);
-	margin-bottom: 50px;
+	color: #FFFFFF;
+	margin: 0 0 20px;
 	font-size: 1.6rem;
+	line-height: 1.6;
+}
+
+.footer-cta1 .cta-text{
+	color: #E5E5E5;
+	margin: 0 0 40px;
+	font-size: 1rem;
+	line-height: 1.8;
 }
 
 .footer-cta1 .cta-btn-container{
-	margin-bottom: 100px;
+	margin-bottom: 30px;
+	text-align: left;
 }
 
 .footer-cta1 .cta-btn-container .cta-btn{
@@ -181,6 +192,7 @@
 	border-radius: 5px;
 	font-weight: 600;
 	font-size: 1.6rem;
+	text-align: center;
 }
 
 .footer-cta1 .cta-btn-container .cta-btn i{
@@ -197,13 +209,20 @@
 
 @media only screen and (max-width: 768px){
 
-.footer-cta1 .cta-btn-container {
-	margin-bottom: 0;
+.footer-cta1 .cta-catch{
+	font-size: 1.35rem;
+}
+
+.footer-cta1 .cta-text{
+	margin-bottom: 28px;
+	font-size: 0.95rem;
 }
 
 .footer-cta1 .cta-btn-container .cta-btn{
+	box-sizing: border-box;
 	padding: 20px;
 	width: 100%;
+	max-width: 100%;
 	text-align: center;
 	font-size: 1.2rem;
 }

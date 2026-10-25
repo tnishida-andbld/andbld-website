@@ -32,8 +32,8 @@ get_header();
         
         <div class="fv-catch-container">
           <div class="fv-catch-title">
-            <p class="fv-catch-title-text1">AI×RPAで、<br class="sp-only">業務革命。</p>
-            <p class="fv-catch-title-text2">人を創造に、<br class="sp-only">ロボットを定型に。</p>
+            <p class="fv-catch-title-text1">挑戦を、実装する。</p>
+            <p class="fv-catch-title-text2">事業を理解し、技術で実現し、人とAIをつなぐ。</p>
           </div>
         </div>
       </div>
@@ -44,57 +44,59 @@ get_header();
 
         <section class="content-block content-block-whoweare">
           <h2 class="content-title">(WHO WE ARE)</h2>
+          <h3 class="content-heading">事業と技術、その両方を実践する。</h3>
           <div class="content-text">
-            <p>私たちはAIとRPAを駆使して業務を革新し、生産性と効率を飛躍的に高めることで、人々の時間と心に新たな余白を生み出します。</p>
-            <p>その余白を未来を切り拓く重要な取り組みや創造的活動へとつなげ、経済的にも時間的にも豊かで、持続可能で明るい未来社会の実現を目指します。</p>
+            <p>私たちは、開発だけを行う会社でも、事業を考えるだけの会社でもありません。</p>
+            <p>事業の目的を理解し、必要な技術を選び、実際に動く仕組みとして形にする。</p>
+            <p>そして、自らの事業で得た経験を、お客様の新たな挑戦へ還元していきます。</p>
+          </div>
+          <div class="content-more">
+            <a href="<?php echo esc_url( home_url( '/about/' ) ); ?>" class="content-more-link">私たちについて<i class="fas fa-arrow-right"></i></a>
           </div>
         </section>
 
         <section class="content-block content-block-service">
           <h2 class="content-title">(SERVICE)</h2>
+          <div class="service-intro">
+            <h3 class="service-intro-heading">事業を前に進めるために、必要な方法を。</h3>
+            <div class="service-intro-text">
+              <p>AI、Webシステム、業務自動化、コンサルティング。</p>
+              <p>私たちは、技術導入そのものではなく、事業の目的から最適な方法を考えます。</p>
+            </div>
+          </div>
           <div class="content-text">
             <ul class="service-wrap-container-list">
               <li class="service-wrap-container">
-                <a href="<?php echo home_url('/services/bizscan/'); ?>" class="service-link">
+                <a href="<?php echo esc_url( home_url( '/services/' ) ); ?>" class="service-link">
                   <div class="service-wrap">
                     <p class="service-num">01</p>
-                    <p class="service-title">BizScan</p>
-                    <p class="service-text">業務プロセス分析と自動化適性診断</p>
+                    <p class="service-title">Technical</p>
+                    <p class="service-text">AI・Web・業務自動化を通じて、企業の挑戦を実装します。</p>
                     <span class="service-arrow"><i class="fas fa-arrow-right"></i></span>
                   </div>
                 </a>
               </li>
               <li class="service-wrap-container">
-                <a href="<?php echo home_url('/services/creativeforce/'); ?>" class="service-link">
+                <a href="<?php echo esc_url( home_url( '/services/' ) ); ?>" class="service-link">
                   <div class="service-wrap">
                     <p class="service-num">02</p>
-                    <p class="service-title">CreativeForce</p>
-                    <p class="service-text">ソリューション設計・導入</p>
-                    <span class="service-arrow"><i class="fas fa-arrow-right"></i></span>
-                  </div>
-                </a>
-              </li>
-              <li class="service-wrap-container">
-                <a href="<?php echo home_url('/services/guardian/'); ?>" class="service-link">
-                  <div class="service-wrap">
-                    <p class="service-num">03</p>
-                    <p class="service-title">Guardian</p>
-                    <p class="service-text">運用・保守サポート</p>
-                    <span class="service-arrow"><i class="fas fa-arrow-right"></i></span>
-                  </div>
-                </a>
-              </li>
-              <li class="service-wrap-container">
-                <a href="<?php echo home_url('/services/nextgenlab/'); ?>" class="service-link">
-                  <div class="service-wrap">
-                    <p class="service-num">04</p>
-                    <p class="service-title">NextGen .Lab</p>
-                    <p class="service-text">AI×RPA人材の育成プログラム</p>
+                    <p class="service-title">Business</p>
+                    <p class="service-text">事業づくりの実践知を活かし、構想から成長まで伴走します。</p>
                     <span class="service-arrow"><i class="fas fa-arrow-right"></i></span>
                   </div>
                 </a>
               </li>
             </ul>
+          </div>
+        </section>
+
+        <section class="content-block content-block-approach">
+          <h2 class="content-title">(OUR APPROACH)</h2>
+          <h3 class="content-heading">技術からではなく、事業から考える。</h3>
+          <div class="content-text">
+            <p>私たちが最初に考えるのは、「何をつくるか」ではなく、「何を実現したいか」です。</p>
+            <p>事業を理解し、本当に必要な方法を選び、構想だけで終わらせず実装まで。</p>
+            <p>人とAI、それぞれの強みを活かしながら、変化が現場に根づくところまで伴走します。</p>
           </div>
         </section>
 

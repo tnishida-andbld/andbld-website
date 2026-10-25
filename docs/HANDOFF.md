@@ -1,7 +1,7 @@
 # HANDOFF — andbld AI Development OS
 
 > 現在地のスナップショット／索引。詳細は複製しない。
-> 更新日: 2026-08-26 ／ OS Version: **v0.5**（履歴は `docs/VERSION.md`）
+> 更新日: 2026-10-25 ／ OS Version: **v0.5**（履歴は `docs/VERSION.md`。この日付更新では版数を上げていない）
 
 ## 0. 新セッションの約束（必須）
 
@@ -38,9 +38,9 @@ WordPress 本体・DB・uploads・秘密情報は管理外。
 |------|------|
 | OS Version | v0.5 |
 | 完了 | I-0001 / I-0002 / I-0003 / I-0003.5 |
-| Current Issue | なし |
-| Next Issue | 未決定。Human 確認待ち |
-| テーマ Version | 1.0.0（`style.css`。OS Version とは別） |
+| Current Issue | I-0004。テーマ実装、Development 反映、Development UAT 10/10 PASS まで完了。PR #10 は OPEN / Draft。Done ではない。Production は未実施・未承認 |
+| Next Issue | 未決定。Human 確認待ち。I-0005 には入らない |
+| テーマ Version | 1.0.0（`style.css` のヘッダ。enqueue のクエリは D-0012 で `filemtime()`） |
 
 ## 3. Issue スナップショット
 
@@ -50,6 +50,7 @@ WordPress 本体・DB・uploads・秘密情報は管理外。
 | I-0002 | Git × XAMPP Junction | Done | D-0006, L-0004, P-0001 |
 | I-0003 | Development 手動デプロイ | Done | D-0007, L-0005, L-0006, P-0002 |
 | I-0003.5 | 引き継ぎ基盤（HANDOFF） | Done | このファイル, D-0008, L-0007 |
+| I-0004 | サイトコンテンツ更新 | 実装・Development 反映・UAT 10/10 PASS。PR #10 は OPEN / Draft。Production 未承認。Done ではない | D-0009〜D-0013。計画と仕様 |
 
 P-0002 等を「次に必ず実施する Issue」としない。次は Human が決める。
 
@@ -65,13 +66,23 @@ P-0002 等を「次に必ず実施する Issue」としない。次は Human が
 | Development backup の prune | 後続 | workflow コメント |
 | テーマ Requires PHP / Tested up to | TODO | `docs/VERSION.md` |
 | リポジトリ版数・リリース手順 | TODO | `docs/VERSION.md` |
+| I-0004 Push / Draft PR | 実施済み。PR #10 は OPEN / Draft。未Merge | D-0009, D-0013 |
+| I-0004 Development 反映と Human Review | 反映済み。UAT 10/10 PASS | D-0007, D-0009, D-0013 |
+| I-0004 Production 反映 | 未実施・未承認 | D-0009, D-0013 |
+| ナビ「サービス」→「事業内容」 | 未実施。変更先は維持。時期は未決定 | D-0009 |
+| `/services/` の H1・ページタイトル | 未決定 | D-0009 |
+| TOP の SEOタイトル | 未決定。無承認では変えない | D-0009 |
+| サイトマップの旧4URL除外 | 未実施。方法と時期は未決定 | D-0009, D-0011 |
+| ログイン済み旧ページプレビュー確認 | 未了 | D-0011 |
+| Development / Production の CSS キャッシュ確認 | Development は UAT で PASS。Production は未了 | D-0012, D-0013 |
+| 残りの CSS `@import` のキャッシュ管理 | 未決定 | D-0012 |
 
 P-0001 は Resolved。本文は `docs/998_LESSONS_LEARNED.md`。
 
 ## 5. 環境の運用状態
 
 - Local: Git テーマが SoT。XAMPP は Junction。手順は `README.md`
-- Development: GitHub Actions + rsync over SSH。正式運用は `workflow_dispatch` 手動。`mode` 初期値 `dry-run`。deploy 後も Human Review 必須。`main` push 自動デプロイは未実施（P-0002）
+- Development: GitHub Actions + rsync over SSH。正式運用は `workflow_dispatch` 手動。`mode` 初期値 `dry-run`。deploy 後も Human Review 必須。`main` push 自動デプロイは未実施（P-0002）。I-0004 の一時 inspect mode は削除済み。Environment `development` の Deployment branches は `main` のみ
 - Production: 自動デプロイなし。最終の本番反映は I-0001 の手動アップロード。一致確認は Human 事項
 
 詳細: D-0003 / D-0006 / D-0007 / `README.md`「Development Deploy」
@@ -90,6 +101,11 @@ P-0001 は Resolved。本文は `docs/998_LESSONS_LEARNED.md`。
 - D-0006 Local SoT = Git テーマ
 - D-0007 Development は GHA + rsync、手動 dispatch
 - D-0008 新セッションの入口は HANDOFF
+- D-0009 I-0004 ローカル6 Commitを Accept。当時の未実施リストは本文に残す
+- D-0010 I-0004 の採用文言。旧CTA英語見出し等を更新
+- D-0011 301は旧4パスのみ。派生URLは今回の対象外
+- D-0012 I-0004 変更CSSの `filemtime()` 読み込み
+- D-0013 I-0004 は実装・Development 反映・UAT PASS まで完了。PR #10 は OPEN / Draft。Production は未承認。Done ではない
 
 ## 7. Lessons 索引
 
