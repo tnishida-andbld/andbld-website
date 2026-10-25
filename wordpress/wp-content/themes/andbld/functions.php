@@ -377,16 +377,42 @@ add_action( 'widgets_init', 'andbld_widgets_init' );
  * Enqueue scripts and styles.
  */
 function andbld_scripts() {
-	wp_enqueue_style( 'andbld-style', get_stylesheet_uri(), array(), _S_VERSION );
+	$theme_dir = get_template_directory();
+	$theme_uri = get_template_directory_uri();
+	$style_path = $theme_dir . '/style.css';
+	$style_ver  = file_exists( $style_path ) ? filemtime( $style_path ) : _S_VERSION;
+
+	wp_enqueue_style( 'andbld-style', get_stylesheet_uri(), array(), $style_ver );
 	wp_style_add_data( 'andbld-style', 'rtl', 'replace' );
 
-	// toppage-contents.css は @import だと version を付けられないため個別 enqueue
-	$toppage_css = get_template_directory() . '/css/toppage-contents.css';
+	// @import では更新日時を付けられない。I-0004で変えたCSSは個別に読む。
+	// 順は headfoot → page-contents → toppage。toppage が最後で、従来の上書き関係を保つ。
+	$headfoot_css = $theme_dir . '/css/headfoot.css';
+	if ( file_exists( $headfoot_css ) ) {
+		wp_enqueue_style(
+			'andbld-headfoot',
+			$theme_uri . '/css/headfoot.css',
+			array( 'andbld-style' ),
+			filemtime( $headfoot_css )
+		);
+	}
+
+	$page_css = $theme_dir . '/css/page-contents.css';
+	if ( file_exists( $page_css ) ) {
+		wp_enqueue_style(
+			'andbld-page-contents',
+			$theme_uri . '/css/page-contents.css',
+			array( 'andbld-headfoot' ),
+			filemtime( $page_css )
+		);
+	}
+
+	$toppage_css = $theme_dir . '/css/toppage-contents.css';
 	if ( file_exists( $toppage_css ) ) {
 		wp_enqueue_style(
 			'andbld-toppage-contents',
-			get_template_directory_uri() . '/css/toppage-contents.css',
-			array( 'andbld-style' ),
+			$theme_uri . '/css/toppage-contents.css',
+			array( 'andbld-page-contents' ),
 			filemtime( $toppage_css )
 		);
 	}
