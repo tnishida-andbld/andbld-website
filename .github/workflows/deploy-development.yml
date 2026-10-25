@@ -160,6 +160,83 @@ jobs:
           fi
           echo "Local source theme: ok"
 
+      - name: Verify inspect baseline
+        if: ${{ inputs.mode == 'inspect' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          CANDIDATE_SHA=be11488f9c75f7fe1a79fb6ac6ed999ff80e7a89
+          files=(
+            functions.php
+            page-frontpage.php
+            style.css
+            css/headfoot.css
+            css/page-contents.css
+            css/toppage-contents.css
+            section-parts/cta-block1.php
+            template-parts/inc/about-page.php
+            template-parts/inc/services-page.php
+            assets/images/andbld-value-cycle-icons.png
+          )
+
+          if [ "${GITHUB_REF_NAME}" != "feature/i-0004-site-content-update" ]; then
+            echo "Inspect refused: branch is not feature/i-0004-site-content-update" >&2
+            exit 1
+          fi
+          : "${GITHUB_TOKEN:?GITHUB_TOKEN is missing}"
+
+          work="$(mktemp -d)"
+          trap 'rm -rf "${work}"' EXIT
+          commit_code="$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${CANDIDATE_SHA}")" || {
+            echo "Inspect refused: candidate commit request failed" >&2
+            exit 1
+          }
+          if [ "${commit_code}" != "200" ]; then
+            echo "Inspect refused: candidate commit is not available" >&2
+            exit 1
+          fi
+
+          for rel in "${files[@]}"; do
+            case "${rel}" in
+              /*|*..*)
+                echo "Relative path refused" >&2
+                exit 1
+                ;;
+            esac
+            if [ ! -f "${SOURCE_THEME}/${rel}" ]; then
+              echo "Inspect refused: candidate file is missing (${rel})" >&2
+              exit 1
+            fi
+            body="${work}/candidate.body"
+            code="$(curl -sS --max-time 30 -o "${body}" -w '%{http_code}' \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.raw" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/${SOURCE_THEME}/${rel}?ref=${CANDIDATE_SHA}")" || {
+              echo "Inspect refused: candidate file request failed (${rel})" >&2
+              exit 1
+            }
+            if [ "${code}" != "200" ]; then
+              echo "Inspect refused: candidate file is not available (${rel}) status ${code}" >&2
+              exit 1
+            fi
+            blob_sum="$(sha256sum "${body}")"
+            blob_sum="${blob_sum%% *}"
+            rm -f "${body}"
+            work_sum="$(sha256sum "${SOURCE_THEME}/${rel}")"
+            work_sum="${work_sum%% *}"
+            if [ "${blob_sum}" != "${work_sum}" ]; then
+              echo "Inspect refused: working tree does not match candidate commit (${rel})" >&2
+              exit 1
+            fi
+          done
+          echo "Inspect baseline check: ok"
+
       - name: SSH connectivity test
         run: |
           set -euo pipefail
@@ -246,9 +323,20 @@ jobs:
               ;;
           esac
 
-          head_sha="$(git rev-parse HEAD)"
-          if [ "${head_sha}" != "${CANDIDATE_SHA}" ]; then
-            echo "Inspect refused: checkout does not match the candidate commit" >&2
+          if [ "${GITHUB_REF_NAME}" != "feature/i-0004-site-content-update" ]; then
+            echo "Inspect refused: branch is not feature/i-0004-site-content-update" >&2
+            exit 1
+          fi
+          commit_code="$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${CANDIDATE_SHA}")" || {
+            echo "Inspect refused: candidate commit request failed" >&2
+            exit 1
+          }
+          if [ "${commit_code}" != "200" ]; then
+            echo "Inspect refused: candidate commit is not available" >&2
             exit 1
           fi
 
@@ -266,8 +354,22 @@ jobs:
               echo "Inspect refused: candidate file is missing (${rel})" >&2
               exit 1
             fi
-            blob_sum="$(git cat-file blob "HEAD:${SOURCE_THEME}/${rel}" | sha256sum)"
+            body="${work}/candidate.body"
+            code="$(curl -sS --max-time 30 -o "${body}" -w '%{http_code}' \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github.raw" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/${SOURCE_THEME}/${rel}?ref=${CANDIDATE_SHA}")" || {
+              echo "Inspect refused: candidate file request failed (${rel})" >&2
+              exit 1
+            }
+            if [ "${code}" != "200" ]; then
+              echo "Inspect refused: candidate file is not available (${rel}) status ${code}" >&2
+              exit 1
+            fi
+            blob_sum="$(sha256sum "${body}")"
             blob_sum="${blob_sum%% *}"
+            rm -f "${body}"
             work_sum="$(sha256sum "${SOURCE_THEME}/${rel}")"
             work_sum="${work_sum%% *}"
             if [ "${blob_sum}" != "${work_sum}" ]; then
