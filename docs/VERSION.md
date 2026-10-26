@@ -2,8 +2,17 @@
 
 ## andbld AI Development OS
 
-- Version: **v0.6**
+- Version: **v0.7**
 - Updated: 2026-10-26
+
+### v0.7 変更概要
+
+- I-0005 の Git 正式取り込み完了（PR #12 MERGED）
+- Merge SHA: `886db0503037a23a015209d47a78da423f37ce95`
+- D-0015 追加。テーマ 4 ファイルを `main` へ取り込み
+- Development / Local の環境再同期は未実施
+- Current Issue なし
+- Next Issue は未決定（I-0006 の WordPress 環境再同期が候補）
 
 ### v0.6 変更概要
 
@@ -52,6 +61,7 @@
 
 | Version | Date | Summary |
 |---------|------|---------|
+| v0.7 | 2026-10-26 | I-0005 Git 正式取り込み完了。PR #12。D-0015。環境再同期は未実施 |
 | v0.6 | 2026-10-26 | I-0004 Production 完了。Human Acceptance。D-0014。Current Issue なし |
 | v0.5 | 2026-08-26 | I-0003.5 引き継ぎ基盤。HANDOFF / D-0008 / L-0007 / L-0008。Current Issue なし |
 | v0.4 | 2026-08-26 | I-0003 Development 手動デプロイ完了。GHA + rsync。D-0007 / L-0005 / L-0006。P-0002 Open |
