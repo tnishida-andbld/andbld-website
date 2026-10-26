@@ -564,3 +564,58 @@ I-0004 は Done とする。次は I-0004 の対象外として残す。
 ### Reason
 
 Production 反映、SHA-256 照合、UAT、最終回帰、Human Acceptance が揃ったため。D-0005 に従い、AI 自己検証ではなく Human 承認をもって Done とする。対象外事項を I-0004 に混ぜると、未実施を Issue 未完了と誤読するため。
+
+---
+
+## D-0015
+
+### Date
+
+2026-10-26
+
+### Status
+
+Approved
+
+### Related
+
+I-0005
+I-0006
+D-0005
+D-0014
+PR #12
+
+### Decision
+
+I-0005 の Production 先行実装を Git へ正式取り込み、Git 部分を Done とする。
+
+Development / Local へのテーマ反映と WordPress データの同期は I-0005 の完了条件に含めない。それらは I-0006 とする。
+
+- PR: #12（MERGED / CLOSED）
+- Merge SHA: `886db0503037a23a015209d47a78da423f37ce95`
+- Merge 日時: 2026-10-26 16:57:29 JST
+- 変更: テーマ 4 ファイル、102 additions / 1 deletion
+- 対象: `template-parts/content-page.php`、`template-parts/inc/customer-harassment-policy-page.php`、`footer.php`、`css/page-contents.css`
+- Production 取得コピーとの SHA-256 比較: 4/4 一致
+- Production 現行サーバ上のファイルとの直接ハッシュ照合は未確認
+- `css/layout.css` のブログ個別ページリンク色変更は I-0005 対象外。別途判断
+- Production への再アップロードは今回行わない。先行公開済みのテーマ実装を Git へ合わせた作業である
+- Development へのテーマデプロイは、I-0006 の DB 同期計画と調整してから行う
+
+I-0006 の方針:
+
+- Production を WordPress コンテンツ・DB・uploads の基準とする
+- GitHub `main` をテーマソースの基準とする
+- Development / Local への同期前にバックアップと復元方法を確認する
+- バックアップ復元試験は未実施。完了扱いしない
+- URL 置換はシリアライズ対応を必須とする
+- 環境固有の認証情報・設定を保持する
+- メール送信・外部 API・Webhook・WP-Cron 等の副作用を防ぐ
+- Development の検索エンジン非公開設定を確認する
+- 各環境で固定ページ `/customer-harassment-policy/` の存在と表示を確認する
+
+I-0006 の実作業は、この決定では開始しない。
+
+### Reason
+
+Production にだけあった方針ページ実装を Git 未管理のまま残すと、Development デプロイや後続改修で上書き・欠落する。Git 取り込みと環境再同期を分けて記録しないと、テーマが `main` にあることを環境同期完了と誤読するため。
