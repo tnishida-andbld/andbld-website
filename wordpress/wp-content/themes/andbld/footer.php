@@ -29,6 +29,7 @@ include('section-parts/cta-block1.php');
 				<div class="footer-menu">
 					<ul>
 						<li><a href="<?php echo home_url('/privacy-policy'); ?>">個人情報の取扱いについて</a></li>
+						<li><a href="<?php echo home_url('/customer-harassment-policy'); ?>">カスタマーハラスメントに対する基本方針</a></li>
 						<li><a href="<?php echo home_url('/terms'); ?>">サイトご利用にあたって</a></li>
 					</ul>
 				</div>
