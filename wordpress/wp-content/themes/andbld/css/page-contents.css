@@ -594,6 +594,16 @@
 	background-color: #fff4f4;
 }
 
+.page-conteiner .customer-harassment-policy-content .content-kiyaku .kiyaku-footer-info{
+	text-align: right;
+}
+
+.page-conteiner .customer-harassment-policy-content .content-kiyaku .kiyaku-footer-info p {
+    font-size: 1rem;
+    line-height: 150%;
+	font-weight: normal;
+}
+
 @media only screen and (max-width: 768px){
 
 .page-conteiner .entry-header .title-wrap {

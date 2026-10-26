@@ -37,7 +37,7 @@
 			<div class="content-area col-md-12">
 				<main id="main" class="post-wrap" role="main">
 					<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-					<?php if(is_page( array( 'about', 'services', 'bizscan', 'creativeforce', 'nextgenlab', 'guardian', 'careers', 'privacy-policy', 'terms', 'contact' ) ) ): ?>
+					<?php if(is_page( array( 'about', 'services', 'bizscan', 'creativeforce', 'nextgenlab', 'guardian', 'careers', 'customer-harassment-policy', 'privacy-policy', 'terms', 'contact' ) ) ): ?>
 
 					<div class="entry-content">
 						<div class="<?php echo $slug; ?>-page cont-page">
@@ -58,6 +58,8 @@
 									include(get_template_directory() . '/template-parts/inc/careers-page.php');
 								}elseif(is_page('privacy-policy')){
 									include(get_template_directory() . '/template-parts/inc/privacy-policy-page.php');
+								}elseif(is_page('customer-harassment-policy')){
+									include(get_template_directory() . '/template-parts/inc/customer-harassment-policy-page.php');
 								}elseif(is_page('terms')){
 									include(get_template_directory() . '/template-parts/inc/terms-page.php');
 								}elseif(is_page('contact')){
