@@ -506,3 +506,61 @@ Development の CSS キャッシュは、UAT の対象として PASS である�
 ### Reason
 
 Acceptance 後の Push、Development 反映、UAT、一時 inspect の削除、Environment の許可ブランチ復元が完了したため。D-0009 の「未実施」を書き換えると、当時何が未実施だったかが残らない。Production 未承認のまま Done にすると、本番反映済みと誤読するため。
+
+---
+
+## D-0014
+
+### Date
+
+2026-10-26
+
+### Status
+
+Approved
+
+### Related
+
+I-0004
+D-0005
+D-0009
+D-0013
+PR #10
+`docs/I-0004_FINAL_IMPLEMENTATION_PLAN.md`
+
+### Decision
+
+I-0004 の Production 反映と Human Acceptance を完了とし、I-0004 を Done とする。
+
+D-0009〜D-0013 の本文は、当時の記録として残す。本決定が、その後の実施結果と Done 判定の正とする。
+
+GitHub に独立した I-0004 Issue は存在しない。追跡実体は PR #10（MERGED / CLOSED）である。完了記録は OS 文書と PR #10 コメントとする。
+
+- Production 反映日: 2026-10-26
+- 方式: Human が FileZilla でテーマ 10 ファイルを個別アップロード（同期・削除なし）
+- PR: #10
+- 確定コミット: `56c0d2dad54a07b5a238964bff29b2bdfc39d41e`
+- 対象: `functions.php`、`page-frontpage.php`、`style.css`、`css/headfoot.css`、`css/page-contents.css`、`css/toppage-contents.css`、`section-parts/cta-block1.php`、`template-parts/inc/about-page.php`、`template-parts/inc/services-page.php`、`assets/images/andbld-value-cycle-icons.png`
+- 反映後 SHA-256 照合: 10/10 PASS
+- バックアップ: All-in-One WP Migration（I-0005 後、ローカル保存済み）。I-0005 後の Production テーマ退避済み。I-0004 上書き対象の既存 9 ファイルは反映前に旧ベースラインと一致。復元テストは未実施。Xserver 自動バックアップは完了待ちのため、完了扱いしない
+- Production 検証: 主要ページ 4/4 PASS。旧サービス URL の 301（末尾スラッシュなし）4/4 PASS。CTA 6/6 PASS。最終回帰テスト 9/9 PASS。総合 PASS
+- 最終回帰: PC / SP（TOP・ABOUT・SERVICES）、BLOG 一覧と横スクロール、NEWS 一覧、CAREERS 表示、CONTACT ページ表示とフォーム動作、GLOSSARY・EBOOK 表示、Console に重大な JavaScript エラーなし、共通ヘッダー・フッターに崩れなし。CONTACT フォームの実送信は未確認
+- I-0005 保護: `template-parts/content-page.php` と `template-parts/inc/customer-harassment-policy-page.php` はアップロード対象外。前後 SHA-256 2/2 PASS（変更なし）。Git 取り込みは別作業
+- Human Acceptance: 2026-10-26 承認
+
+I-0004 は Done とする。次は I-0004 の対象外として残す。
+
+- ナビゲーション「サービス」→「事業内容」
+- `/services/` の H1 と固定ページタイトル
+- TOP の SEOタイトル
+- サイトマップからの旧4URL除外
+- I-0005 の Git 正式取り込みと Development 同期
+- Production 自動デプロイ
+- Xserver 自動バックアップの完了確認
+- バックアップ復元テスト
+- ログイン済み旧ページプレビュー
+- 残りの CSS `@import` のキャッシュ管理
+
+### Reason
+
+Production 反映、SHA-256 照合、UAT、最終回帰、Human Acceptance が揃ったため。D-0005 に従い、AI 自己検証ではなく Human 承認をもって Done とする。対象外事項を I-0004 に混ぜると、未実施を Issue 未完了と誤読するため。

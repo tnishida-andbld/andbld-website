@@ -314,3 +314,16 @@ AI自己検証のみではDoneとしない。Human Acceptanceを必須とする�
 D-0012。`headfoot.css` と `page-contents.css` は `style.css` の `@import` から外し、`toppage-contents.css` と同じく `filemtime()` 付きで enqueue する。`style.css` のバージョンも `filemtime()` とする。読み込み順は `style.css`、`headfoot.css`、`page-contents.css`、`toppage-contents.css`。
 
 variable、base、layout、firstview、feed、single、ebook、custom の `@import` は変えていない。
+
+### Revision 2026-10-26
+
+I-0004 の Production 反映と Human Acceptance が完了し、Issue を Done とする（D-0014）。上の「未実施」リストと Status 節の「Issue は Done ではない」は、2026-10-25 時点の記録として残す。
+
+- PR #10 MERGED。確定コミット `56c0d2dad54a07b5a238964bff29b2bdfc39d41e`
+- Production 反映日: 2026-10-26。Human が FileZilla でテーマ 10 ファイルを個別アップロード
+- SHA-256 照合 10/10 PASS
+- Production UAT: ページ 4/4、301（末尾スラッシュなし）4/4、CTA 6/6、最終回帰 9/9 PASS
+- I-0005 保護 2/2 PASS。Git 取り込みは別作業
+- Human Acceptance 承認済み
+
+「未対応。ここでは確定しない」の項目は、D-0009 / D-0014 のとおり I-0004 の Done を妨げない。
