@@ -43,3 +43,12 @@ I-0007 / D-0018。記事操作自動化の可否を調べる手動Actions。記�
 - 記事更新コマンドは含まない。サーバー設定の変更・権限拡張・再実行は行っていない。
 - 診断修正案は、runner設定/一時認証ファイル/SSH/PHP不在/応答解析/設定解析/DB/サイト照合/記事照合/応答検証/summary書き込みの固定コードだけを表示する。リモートの自由文・例外メッセージ・stderrは引き続き非表示。
 - Node.js/runner移行の警告もあったが、checkoutは成功している。今回の原因とは断定しない。
+
+## 2回目の実行と診断改善
+
+- PR #18をHuman承認後にマージ。main SHA: `d247eea99974612130c527a3385f1d14f6458663`
+- [run 40673399735](https://github.com/tnishida-andbld/andbld-website/actions/runs/40673399735): workflow_dispatch、main、Failure、stage=`remote_response`
+- この分類だけでは空応答・JSON以外の応答・リモート異常終了を区別できない。DBや記事照合の成功、SSH認証失敗、PHP設定不良のいずれも断定しない。
+- 改善版は終了コード、stdoutの形式（empty/non_json/object/other_json）、stderrの有無と固定エラーマーカー分類だけを表示する。生のstdout/stderrや例外本文は引き続き出さない。
+- exit 255はSSHとリモートプログラムのどちらでも返り得るため、認証失敗と決めつけない。エラーマーカーも原因確定ではなく切り分け材料とする。
+- SQL・認証・接続先・権限・リモート調査コマンドは変更しない。新たなサーバー設定変更や調査対象の拡大はない。
