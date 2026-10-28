@@ -95,7 +95,7 @@ class ProbeTests(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('PHP_TEST_BINARY'), 'Set PHP_TEST_BINARY for local PHP integration')
     def test_generated_php_executes_and_rejects_nonexistent_fixture(self):
         payload = probe.remote_script(self.env())
-        command = next(line for line in payload.splitlines() if line.startswith('php -d'))
+        command = next(line for line in payload.splitlines() if line.startswith(probe.PHP_CLI + ' -d'))
         args = shlex.split(command)
         args[0] = os.environ['PHP_TEST_BINARY']
         args[-1] = 'no'
@@ -103,6 +103,16 @@ class ProbeTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertEqual(json.loads(result.stdout), {'status':'ERROR', 'stage':'installation'})
         self.assertEqual(probe.response_diagnostics(result)['milestones'], ['php_started', 'eval_started', 'probe_started'])
+
+    def test_remote_php_is_fixed_and_missing_binary_stops(self):
+        env = self.env()
+        env['PHP_CLI'] = '/untrusted/SECRET'
+        script = probe.remote_script(env)
+        self.assertIn('test -x /usr/bin/php8.3 || exit 20\n', script)
+        self.assertIn('\n/usr/bin/php8.3 -d ', script)
+        self.assertNotIn('SECRET', script)
+        self.assertNotIn('\nphp -d ', script)
+        self.assertLess(script.index('test -x '), script.index('/usr/bin/php8.3 -d '))
 
     def test_version_metadata_is_strictly_numeric_and_unique(self):
         for value, expected in [('ANDBLD_PHP_VERSION_ID:80200',80200),
