@@ -53,7 +53,6 @@ WordPress 本体・DB・uploads・秘密情報は管理外。
 | I-0004 | サイトコンテンツ更新 | Done。PR #10 MERGED。Production 反映・UAT・最終回帰 PASS。Human Acceptance 済み | D-0009〜D-0014。計画と仕様 |
 | I-0005 | カスタマーハラスメント方針の Git 正式取り込み | Done。PR #12 MERGED（`886db05`、2026-10-26 16:57:29 JST）。テーマ 4 ファイル。Development / Local 反映は I-0006 | D-0015 |
 | I-0006 | WordPress 環境再同期 | Done。Production 由来 DB・uploads を Development / Local へ同期。テーマは `main`。Deploy run `40625104615`。方針ページ 3 環境確認 | D-0016 |
-
 | I-0007 | AI Web Operations基盤構築 | In Progress。3サービス接続・提案PoC・下書きHuman Review・日次取得有効化済み。定期実行の初回成功は未確認 | D-0017、運用リポジトリREADME |
 
 P-0002 等を「次に必ず実施する Issue」としない。次は Human が決める。
