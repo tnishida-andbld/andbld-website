@@ -760,3 +760,54 @@ AI Web Operationsを段階的に構築する。運用コードは非公開の `t
 ### Reason
 
 サイト更新権限と分析処理を分離し、小さなPoCで接続・提案・承認の流れを検証するため。実装・手動成功・定期実行成功・Human Acceptanceを区別し、次セッションが未実施を完了と誤認しないよう記録する。
+
+### Subsequent record
+
+D-0017の「Production/Development/Localの変更なし」は分析基盤PoC時点の記録である。その後、Humanの別途承認により投稿318を手動更新した。実施範囲はD-0018。分析基盤にはProduction更新権限を付与していない。
+
+---
+
+## D-0018
+
+### Date
+
+2026-10-28
+
+### Status
+
+Approved（投稿318の原稿・Development確認・本番反映についてのHuman承認。I-0007全体のAcceptanceではない）
+
+### Related
+
+I-0007 / D-0005 / D-0017 / L-0009 / `docs/ARTICLE_EDITING.md`
+
+### Decision
+
+対象: [Claude Code×Github 次世代AI開発フロー構築術](https://andbld.co.jp/blogs/claude-code-github-ai-development-workflow/)。Development・Productionの対象投稿は318。
+
+- Claude Codeの説明と認証・導入手順を修正。元記事の構成・意図・語り口を保持し、不要な説明追加と過剰な書き換えを取り消した
+- 「本記事のポイント」の修正項目は59文字。strong等の装飾を維持し、改行増殖を修正
+- 参考情報に公式リンク4件と確認日を追加。既存テーマのクラスを利用して装飾し、Human希望により別タブ表示とした
+- HumanがDevelopmentに貼り付け、プレビュー・リンク遷移・別タブ表示を確認して保存した
+- 別途Production反映を承認。変更前本文を保存し、本番用本文のプレビューを確認した後、Humanが2026-10-28に「更新」を実行した
+- AIが公開ページで修正文、ポイントとstrong、参考情報の装飾、4リンクの `target="_blank"` / `rel="noopener noreferrer"`、更新日2026/10/28を確認した
+- 記事内の目次リンクに対応するID欠落は0件。記事内href/srcにDevelopment・localhostのURLは検出されなかった
+
+確認の限界:
+
+- 公開後のAI確認はデスクトップ表示とDOM。スマートフォン実機、全画像読み込み、全リンク遷移先の再検証、Console Error確認は完了扱いにしない
+- D-0005の全項目をPASSしたという記録ではない。必要な残確認は未了として保持する
+- 検索流入回復や改善の因果効果は未確認。公開後28日間の比較を予定候補とするが、測定・通知の自動化や予約は未設定
+
+反映範囲:
+
+- WordPressの対象記事本文のみ。テーマファイル・デプロイworkflow・DB全体同期は今回の反映対象ではない
+- Localの同記事は更新していない。I-0006時点の同期から記事本文の差分が生じている
+- 分析基盤・ExecutorにProduction書き込み権限を付与した実績ではない
+- 変更前本文はHumanが保管。復旧時は現状も退避し、対象記事・差分と承認を確認してから変更前本文を戻す。復元テストは未実施
+
+I-0007はIn Progressを維持する。リンク切れ自動化、Executor接続、初回schedule確認等の残作業を本記録で完了にしない。
+
+### Reason
+
+提案の下書き評価と、個別記事の実装承認・公開実績を区別して引き継ぐため。原稿の正確さだけでなく、元記事の意味と表示を保つ手順を再利用する。

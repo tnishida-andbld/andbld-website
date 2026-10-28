@@ -38,7 +38,7 @@ WordPress 本体・DB・uploads・秘密情報は管理外。
 |------|------|
 | OS Version | v0.9 |
 | 完了 | I-0001 / I-0002 / I-0003 / I-0003.5 / I-0004 / I-0005 / I-0006 |
-| Current Issue | I-0007 AI Web Operations基盤構築：進行中。D-0017 |
+| Current Issue | I-0007 AI Web Operations基盤構築：進行中。D-0017 / D-0018 |
 | Next Issue | 未決定。I-0007の残作業を優先。次IssueはHuman確認待ち |
 | テーマ Version | 1.0.0（`style.css` のヘッダ。enqueue のクエリは D-0012 で `filemtime()`） |
 
@@ -53,7 +53,7 @@ WordPress 本体・DB・uploads・秘密情報は管理外。
 | I-0004 | サイトコンテンツ更新 | Done。PR #10 MERGED。Production 反映・UAT・最終回帰 PASS。Human Acceptance 済み | D-0009〜D-0014。計画と仕様 |
 | I-0005 | カスタマーハラスメント方針の Git 正式取り込み | Done。PR #12 MERGED（`886db05`、2026-10-26 16:57:29 JST）。テーマ 4 ファイル。Development / Local 反映は I-0006 | D-0015 |
 | I-0006 | WordPress 環境再同期 | Done。Production 由来 DB・uploads を Development / Local へ同期。テーマは `main`。Deploy run `40625104615`。方針ページ 3 環境確認 | D-0016 |
-| I-0007 | AI Web Operations基盤構築 | In Progress。3サービス接続・提案PoC・下書きHuman Review・日次取得有効化済み。定期実行の初回成功は未確認 | D-0017、運用リポジトリREADME |
+| I-0007 | AI Web Operations基盤構築 | In Progress。3サービス接続・提案PoC・下書きHuman Review・日次取得有効化済み。定期実行の初回成功は未確認 | D-0017 / D-0018、運用リポジトリREADME |
 
 P-0002 等を「次に必ず実施する Issue」としない。次は Human が決める。
 
@@ -91,11 +91,19 @@ I-0006 の切り戻し概要（詳細は D-0016。値と絶対パスは書かな
 - Development / Local DB: `wp-config.php` の接続先を切替前の DB に戻す。旧 DB は残置
 - Production は対象外
 
+### I-0007の記事改善実績
+
+- 2026-10-28、投稿318をDevelopmentでHuman Review後、別途本番承認・バックアップ・プレビュー確認を経てHumanがProductionへ保存。詳細と確認限界はD-0018
+- 編集・反映手順: `docs/ARTICLE_EDITING.md`。教訓: L-0009
+- 記事本文はWordPress投稿データ。テーマデプロイでは反映されない。Localの同記事は今回未更新
+- リンク切れ検知・修正案の自動化は検討段階。監視・自動修正は未実装
+
 ### I-0007の残作業
 
 - 初回のschedule実行でGoogle・Clarityの取得とartifact保存を確認（手動成功とは区別）
 - 日次異常検知、未起動検知・通知、週次提案、月次効果測定は未実装。I-0007の完了範囲と後続Issueへの切り分けはHuman判断
 - 運用リポジトリの手順書・キー更新手順のレビュー
+- 公開記事の28日後評価は未実施。効果測定の自動化・予約は未設定
 - I-0007全体の最終Acceptanceは未実施
 
 ## 5. 環境の運用状態
@@ -131,6 +139,7 @@ I-0006 の切り戻し概要（詳細は D-0016。値と絶対パスは書かな
 - D-0015 I-0005 の Production 先行実装を Git へ正式取り込み。環境再同期は I-0006 へ分離
 - D-0016 I-0006 WordPress 環境再同期完了。Human 承認。Done
 - D-0017 I-0007の段階的構築と中間到達点。進行中
+- D-0018 投稿318のHumanによるDevelopment・Production反映と検証範囲
 
 ## 7. Lessons 索引
 
@@ -144,12 +153,13 @@ I-0006 の切り戻し概要（詳細は D-0016。値と絶対パスは書かな
 - L-0006 Smoke Test は認証込み。401 を破損と混同しない
 - L-0007 チャット履歴は現在地の SoT にしない
 - L-0008 ドキュメントの存在だけでなく、SoT への到達経路も必要
+- L-0009 記事の意図・装飾・改行を維持し、全文を実環境で確認
 
 ## 8. 現時点の方針
 
 - 実装前に目的を定義する
 - 独断で仕様変更しない
-- テーマ内のみ変更。WP 本体・プラグイン追加は禁止
+- コード変更はテーマ内のみ。WP 本体・プラグイン追加は禁止。別途承認された記事本文の手動更新はD-0018 / `docs/ARTICLE_EDITING.md`を参照
 - Git テーマ = Local / Development の SoT
 - Development 反映は手動 `workflow_dispatch`
 - Production 自動デプロイを始めない
@@ -178,6 +188,7 @@ I-0006 の切り戻し概要（詳細は D-0016。値と絶対パスは書かな
 - `docs/999_DECISIONS.md`
 - `docs/998_LESSONS_LEARNED.md`
 - `docs/AI_DEVELOPMENT_RULES.md`
+- `docs/ARTICLE_EDITING.md`（承認済みの記事改善時）
 - `README.md`（Local / デプロイ操作時）
 - `.github/workflows/deploy-development.yml`（デプロイ改修時）
 
