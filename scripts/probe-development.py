@@ -8,6 +8,8 @@ import shlex
 import subprocess
 import sys
 
+# Xserver's documented CLI path; never fall back to the system PHP.
+PHP_CLI = '/usr/bin/php8.3'
 
 def validate(env):
     if env.get('GITHUB_REF') != 'refs/heads/main' or env.get('GITHUB_EVENT_NAME') != 'workflow_dispatch':
@@ -48,11 +50,11 @@ def remote_script(env):
     bootstrap = php_bootstrap(php.removeprefix('<?php\n'))
     return ('set -eu\n'
             'printf "ANDBLD_PROBE:shell_started\\n" >&2\n'
-            'command -v php >/dev/null 2>&1 || exit 20\n'
+            'test -x ' + shlex.quote(PHP_CLI) + ' || exit 20\n'
             'printf "ANDBLD_PROBE:php_found\\n" >&2\n'
             'available=no\ncommand -v wp >/dev/null 2>&1 && available=yes\n'
-            'set +e\n'
-            'php -d display_errors=0 -d log_errors=0 -r ' +
+            'set +e\n' +
+            shlex.quote(PHP_CLI) + ' -d display_errors=0 -d log_errors=0 -r ' +
             shlex.quote(bootstrap) + ' ' +
             shlex.quote(env['DEV_DEPLOY_PATH']) + ' "$available"\n'
             'rc=$?\nprintf "ANDBLD_PROBE:php_finished\\n" >&2\nexit "$rc"\n')
