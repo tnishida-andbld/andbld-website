@@ -1,7 +1,7 @@
 # HANDOFF — andbld AI Development OS
 
 > 現在地のスナップショット／索引。詳細は複製しない。
-> 更新日: 2026-10-28 ／ OS Version: **v0.8**（履歴は `docs/VERSION.md`）
+> 更新日: 2026-10-28 ／ OS Version: **v0.9**（履歴は `docs/VERSION.md`）
 
 ## 0. 新セッションの約束（必須）
 
@@ -36,10 +36,10 @@ WordPress 本体・DB・uploads・秘密情報は管理外。
 
 | 項目 | 状態 |
 |------|------|
-| OS Version | v0.8 |
+| OS Version | v0.9 |
 | 完了 | I-0001 / I-0002 / I-0003 / I-0003.5 / I-0004 / I-0005 / I-0006 |
-| Current Issue | なし。I-0006 は DONE（詳細は D-0016）。I-0005 の Git 取り込みは D-0015 |
-| Next Issue | 未決定。Human 確認待ち。実装は開始しない |
+| Current Issue | I-0007 AI Web Operations基盤構築：進行中。D-0017 |
+| Next Issue | 未決定。I-0007の残作業を優先。次IssueはHuman確認待ち |
 | テーマ Version | 1.0.0（`style.css` のヘッダ。enqueue のクエリは D-0012 で `filemtime()`） |
 
 ## 3. Issue スナップショット
@@ -53,6 +53,8 @@ WordPress 本体・DB・uploads・秘密情報は管理外。
 | I-0004 | サイトコンテンツ更新 | Done。PR #10 MERGED。Production 反映・UAT・最終回帰 PASS。Human Acceptance 済み | D-0009〜D-0014。計画と仕様 |
 | I-0005 | カスタマーハラスメント方針の Git 正式取り込み | Done。PR #12 MERGED（`886db05`、2026-10-26 16:57:29 JST）。テーマ 4 ファイル。Development / Local 反映は I-0006 | D-0015 |
 | I-0006 | WordPress 環境再同期 | Done。Production 由来 DB・uploads を Development / Local へ同期。テーマは `main`。Deploy run `40625104615`。方針ページ 3 環境確認 | D-0016 |
+
+| I-0007 | AI Web Operations基盤構築 | In Progress。3サービス接続・提案PoC・下書きHuman Review・日次取得有効化済み。定期実行の初回成功は未確認 | D-0017、運用リポジトリREADME |
 
 P-0002 等を「次に必ず実施する Issue」としない。次は Human が決める。
 
@@ -90,11 +92,20 @@ I-0006 の切り戻し概要（詳細は D-0016。値と絶対パスは書かな
 - Development / Local DB: `wp-config.php` の接続先を切替前の DB に戻す。旧 DB は残置
 - Production は対象外
 
+### I-0007の残作業
+
+- 初回のschedule実行でGoogle・Clarityの取得とartifact保存を確認（手動成功とは区別）
+- 日次異常検知、未起動検知・通知、週次提案、月次効果測定は未実装。I-0007の完了範囲と後続Issueへの切り分けはHuman判断
+- 運用リポジトリの手順書・キー更新手順のレビュー
+- I-0007全体の最終Acceptanceは未実施
+
 ## 5. 環境の運用状態
 
 - Local: Git テーマが SoT。XAMPP は Junction。手順は `README.md`。参照 DB は I-0006 isolate。Production 由来コンテンツ同期済み。旧 Local DB は残置
 - Development: GitHub Actions + rsync over SSH。正式運用は `workflow_dispatch` 手動。`mode` 初期値 `dry-run`。deploy 後も Human Review 必須。`main` push 自動デプロイは未実施（P-0002）。Environment `development` の Deployment branches は `main` のみ。参照 DB は I-0006 sidecar。I-0005 テーマは run `40625104615` で反映済み。旧 Development DB は残置
 - Production: 自動デプロイなし。I-0004 は 2026-10-26 に FileZilla でテーマ 10 ファイルを個別反映（D-0014）。I-0005 テーマ 4 ファイルは Production 先行公開済み。I-0006 では Production の DB・ファイルを変更していない
+
+- Web Operations: 非公開の `tnishida-andbld/andbld-web-operations`。毎日09:17 JSTに読み取り集計、artifactは90日。AI提案は手動。Production更新権限なし。詳細は同リポジトリREADME
 
 詳細: D-0003 / D-0006 / D-0007 / `README.md`「Development Deploy」
 操作の実体: `.github/workflows/deploy-development.yml`
@@ -120,6 +131,7 @@ I-0006 の切り戻し概要（詳細は D-0016。値と絶対パスは書かな
 - D-0014 I-0004 Production リリース完了。Human Acceptance。Done
 - D-0015 I-0005 の Production 先行実装を Git へ正式取り込み。環境再同期は I-0006 へ分離
 - D-0016 I-0006 WordPress 環境再同期完了。Human 承認。Done
+- D-0017 I-0007の段階的構築と中間到達点。進行中
 
 ## 7. Lessons 索引
 

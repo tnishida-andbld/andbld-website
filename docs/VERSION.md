@@ -2,10 +2,19 @@
 
 ## andbld AI Development OS
 
-- Version: **v0.8**
+- Version: **v0.9**
 - Updated: 2026-10-28
 
-番号は既存履歴（v0.2〜v0.7）の次号である。新しい版数規則は導入しない。
+番号は既存履歴（v0.2〜v0.8）の次号である。新しい版数規則は導入しない。
+
+### v0.9 変更概要
+
+- I-0007 AI Web Operations基盤構築の中間記録。D-0017
+- 独立した非公開運用リポジトリを採用。サイトテーマとデプロイは変更なし
+- 3サービスの読み取り接続、固定根拠によるAI提案PoC、下書きHuman Reviewを確認
+- 日次取得を有効化。手動取得と90日artifact保存は成功。初回schedule実行は未確認
+- Current Issue: I-0007（In Progress）。全体完了・週次提案自動化を意味しない
+- Next Issue: Human確認待ち
 
 ### v0.8 変更概要
 
@@ -74,6 +83,7 @@
 
 | Version | Date | Summary |
 |---------|------|---------|
+| v0.9 | 2026-10-28 | I-0007中間記録。D-0017。日次取得有効化・手動検証済み、定期初回確認待ち |
 | v0.8 | 2026-10-28 | I-0006 WordPress 環境再同期完了。D-0016。Dev sidecar / Local isolate。テーマ Deploy run 40625104615 |
 | v0.7 | 2026-10-26 | I-0005 Git 正式取り込み完了。PR #12。D-0015。環境再同期は未実施 |
 | v0.6 | 2026-10-26 | I-0004 Production 完了。Human Acceptance。D-0014。Current Issue なし |

@@ -709,3 +709,54 @@ I-0006 は Done とする。次は I-0006 の対象外として残す。
 ### Reason
 
 Production 由来データの同期、環境保護、Git テーマの Development 反映、方針ページの 3 環境表示、Human Review が揃ったため。D-0005 に従い、AI 自己検証ではなく Human 承認をもって Done とする。D-0015 の着手前方針を書き換えると、計画と実施の区別が残らない。
+
+---
+
+## D-0017
+
+### Date
+
+2026-10-28
+
+### Status
+
+Approved（以下の個別実施・下書き評価。I-0007全体のAcceptanceは未実施）
+
+### Related
+
+I-0007 / D-0005 / D-0008
+
+### Decision
+
+AI Web Operationsを段階的に構築する。運用コードは非公開の `tnishida-andbld/andbld-web-operations`、テーマのSoTは既存website mainとする。
+
+- GitHub Actionsと軽量Pythonスクリプトを採用。GA4・Search Console・Clarityは読み取りのみ
+- GoogleはWorkload Identity Federationで短期認証。対象リポジトリ・main・analytics環境・Google取得workflowを限定し、手動とscheduleだけ許可
+- OpenAI APIキーとClarityトークンはGitHub Environment Secretsで管理。秘密値は記録しない
+- 固定した確認済み根拠からOpenAI APIで改善提案を1件生成。下書きとしてHuman Review合格。独立した問題発見・自動ファクトチェックの実証ではない
+- 提案採用・下書き合格は、記事修正・PR・マージ・Production反映の承認ではない
+- 日次取得は毎日09:17 JST。GoogleとClarityは別ワークフロー。artifactを90日保存
+- 日次処理ではAI APIを呼ばない。AI提案生成は手動、追加の有料実行は別途承認
+- I-0007でProduction更新権限を付与しない。Production/Development/Localの変更なし
+
+実施証跡（運用リポジトリ内、アクセス権が必要）:
+
+- Google接続: run 40638947373（認証条件修正後の再実行成功）
+- Clarity接続: run 40640542871
+- GSC 28日比較: run 40642094759
+- 提案管理: Issue #1、Human Reviewコメント 6462803128
+- AI提案PoC: run 40646646697、実装 e737d2bf62b75155d74f20d878ba4b8e9d362b70
+- 日次取得実装: 45f8cc359c6daef8168e05009f90262e6c1aae23
+- 日次形式の手動検証: Google run 40648387834 / Clarity run 40648448474。両方成功、artifact保存を確認
+
+未完了:
+
+- 初回schedule成功確認。予定日時を実行成功とみなさない
+- 日次異常判定、未起動検知・通知、週次提案自動化、月次効果測定
+- 運用文書のレビューとI-0007全体の最終Acceptance
+
+完了範囲の縮小や未実装項目の後続Issueへの移管は自動決定しない。
+
+### Reason
+
+サイト更新権限と分析処理を分離し、小さなPoCで接続・提案・承認の流れを検証するため。実装・手動成功・定期実行成功・Human Acceptanceを区別し、次セッションが未実施を完了と誤認しないよう記録する。
