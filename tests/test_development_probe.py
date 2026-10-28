@@ -42,7 +42,18 @@ class ProbeTests(unittest.TestCase):
     def test_failure_does_not_publish_raw_output(self):
         for data in ['SECRET', json.dumps({'status':'ERROR','stage':'SECRET'})]:
             rc, text, _ = self.run_mock(data, 1)
-            self.assertEqual(rc,1); self.assertEqual(text,'')
+            self.assertEqual(rc,1); self.assertIn('remote_response',text)
+
+    def test_only_fixed_failure_stage_is_reported(self):
+        for remote, expected in [('config','remote_config'), ('SECRET','remote_response'),
+                                 (['SECRET'],'remote_response')]:
+            rc, text, _ = self.run_mock(json.dumps({'status':'ERROR','stage':remote}),1)
+            self.assertEqual(rc,1); self.assertIn('Stage: `'+expected+'`',text)
+
+    def test_transport_and_php_exit_codes(self):
+        for code, expected in [(255,'ssh_execution'),(20,'remote_php_unavailable')]:
+            rc, text, _ = self.run_mock('SECRET',code)
+            self.assertEqual(rc,1); self.assertIn('Stage: `'+expected+'`',text)
 
     def test_only_allowlisted_metadata_reaches_summary(self):
         data = dict(status='OK',post_id=318,site_identity='development_verified',wordpress_bootstrap=False,

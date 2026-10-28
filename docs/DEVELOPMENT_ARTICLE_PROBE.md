@@ -34,3 +34,12 @@ I-0007 / D-0018。記事操作自動化の可否を調べる手動Actions。記�
 `php tests/test_probe_config.php`
 
 テストはローカルのfixtureとモックのみ。実サーバー接続を含まない。画面変更はなくスクリーンショットは対象外。
+
+## 初回実行記録（2026-10-28）
+
+- PR #17をHuman承認後にマージ。main SHA: `811b1c2743b68d9f7c9b902575b3bcef99bc83e4`
+- [run 40672671213](https://github.com/tnishida-andbld/andbld-website/actions/runs/40672671213): workflow_dispatch、main、attempt 1、Failure
+- checkout成功後、調査スクリプトがexit 1。初版は全例外を同じメッセージへ集約していたため、停止段階・原因は特定できない。接続・記事照合の成功を主張しない。
+- 記事更新コマンドは含まない。サーバー設定の変更・権限拡張・再実行は行っていない。
+- 診断修正案は、runner設定/一時認証ファイル/SSH/PHP不在/応答解析/設定解析/DB/サイト照合/記事照合/応答検証/summary書き込みの固定コードだけを表示する。リモートの自由文・例外メッセージ・stderrは引き続き非表示。
+- Node.js/runner移行の警告もあったが、checkoutは成功している。今回の原因とは断定しない。
