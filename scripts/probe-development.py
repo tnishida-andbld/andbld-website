@@ -87,6 +87,29 @@ def response_diagnostics(result):
             'milestones': milestones, 'php_version_id': version_id}
 
 
+def clean_storage(data):
+    if not isinstance(data, dict):
+        raise ValueError('missing storage inventory')
+    clean = {}
+    for key in ('parent', 'container', 'post_directory'):
+        node = data.get(key)
+        if not isinstance(node, dict) or node.get('kind') not in ('directory', 'symlink', 'other', 'absent_or_unreadable', 'not_checked'):
+            raise ValueError('invalid storage node')
+        owner, mode = node.get('owner_matches_process'), node.get('mode')
+        if owner is not None and type(owner) is not bool:
+            raise ValueError('invalid owner flag')
+        if mode is not None and (not isinstance(mode, str) or not re.fullmatch(r'[0-7]{4}', mode)):
+            raise ValueError('invalid mode')
+        clean[key] = dict(kind=node['kind'], owner_matches_process=owner, mode=mode)
+    free = data.get('free_bytes')
+    if free is not None and (type(free) is not int or free < 0):
+        raise ValueError('invalid capacity')
+    if data.get('outside_confirmed_wp_root') is not True or data.get('web_exposure') != 'not_verified' or data.get('ready_for_backup') is not False:
+        raise ValueError('invalid storage assurance')
+    clean.update(free_bytes=free, outside_confirmed_wp_root=True, web_exposure='not_verified', ready_for_backup=False)
+    return clean
+
+
 def main():
     stage = 'runner_configuration'
     diagnostics = None
@@ -125,7 +148,7 @@ def main():
         data = json.loads(result.stdout)
         if isinstance(data, dict) and data.get('status') == 'ERROR':
             allowed = {'installation', 'config', 'database', 'site_identity', 'article_identity',
-                       'php_sapi', 'php_version', 'php_eval', 'php_load'}
+                       'php_sapi', 'php_version', 'php_eval', 'php_load', 'storage'}
             remote_stage = data.get('stage')
             if isinstance(remote_stage, str) and remote_stage in allowed:
                 stage = 'remote_' + remote_stage
@@ -148,6 +171,7 @@ def main():
             if type(data.get(key)) is not bool:
                 raise ValueError('invalid flag')
         clean = {key:data[key] for key in ['post_id','php_version','wp_cli_on_path','content_bytes','content_sha256','backup_parent_writable']}
+        clean['storage'] = clean_storage(data.get('storage'))
         clean.update(status='OK', ssh_scope='not_verified', wp_cli_execution='not_tested', backup_create_restore='not_tested', wordpress_bootstrap=False)
         report = '## Development article inventory\n\n```json\n'+json.dumps(clean, indent=2)+'\n```\n'
         stage = 'summary_write'
