@@ -40,8 +40,29 @@ def remote_script(env):
             shlex.quote(env['DEV_DEPLOY_PATH']) + ' "$available"\n')
 
 
+def response_diagnostics(result):
+    """Classify output without copying any remote text into the report."""
+    try:
+        parsed = json.loads(result.stdout)
+        shape = 'object' if isinstance(parsed, dict) else 'other_json'
+    except (ValueError, TypeError):
+        shape = 'empty' if not result.stdout.strip() else 'non_json'
+    stderr = result.stderr.lower()
+    if 'php parse error' in stderr or 'parse error:' in stderr:
+        error_class = 'php_parse_error_marker'
+    elif 'php fatal error' in stderr or 'fatal error:' in stderr:
+        error_class = 'php_fatal_error_marker'
+    elif 'usage: php' in stderr or 'error in argument' in stderr:
+        error_class = 'php_usage_marker'
+    else:
+        error_class = 'unclassified' if stderr.strip() else 'empty'
+    return {'exit_code': int(result.returncode), 'stdout_format': shape,
+            'stderr_present': bool(result.stderr.strip()), 'stderr_class': error_class}
+
+
 def main():
     stage = 'runner_configuration'
+    diagnostics = None
     try:
         env = os.environ
         payload = remote_script(env)
@@ -63,14 +84,17 @@ def main():
             '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15',
             '-o', 'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=2',
             env['DEV_SSH_USER']+'@'+env['DEV_SSH_HOST'], 'bash -s',
-        ], input=payload, text=True, capture_output=True, timeout=90)
+        ], input=payload, text=True, encoding='utf-8', errors='replace', capture_output=True, timeout=90)
         # Only emit enumerated fields, never raw SSH output/stderr.
-        if result.returncode == 255:
-            raise ValueError('SSH failed')
+        diagnostics = response_diagnostics(result)
+        # 255 can originate from SSH or a remote program; do not call it auth failure.
         if result.returncode == 20:
             stage = 'remote_php_unavailable'
             raise ValueError('PHP unavailable')
         stage = 'remote_response'
+        if diagnostics['stdout_format'] != 'object':
+            stage = 'remote_output_' + diagnostics['stdout_format']
+            raise ValueError('Invalid response shape')
         data = json.loads(result.stdout)
         if isinstance(data, dict) and data.get('status') == 'ERROR':
             allowed = {'installation', 'config', 'database', 'site_identity', 'article_identity'}
@@ -78,7 +102,10 @@ def main():
             if isinstance(remote_stage, str) and remote_stage in allowed:
                 stage = 'remote_' + remote_stage
             raise ValueError('remote probe failed')
-        if result.returncode or data.get('status') != 'OK':
+        if result.returncode:
+            stage = 'remote_nonzero_exit'
+            raise ValueError('remote process failed')
+        if data.get('status') != 'OK':
             raise ValueError('remote probe failed')
         stage = 'response_validation'
         if data.get('post_id') != 318 or data.get('site_identity') != 'development_verified' or data.get('wordpress_bootstrap') is not False:
@@ -102,10 +129,14 @@ def main():
         # stage can only be a local constant or an explicitly allowlisted remote code.
         message = 'Development inventory failed at: ' + stage + '. Raw output suppressed.'
         print(message, file=sys.stderr)
+        diagnostic_text = ''
+        if diagnostics is not None:
+            diagnostic_text = '\n```json\n'+json.dumps(diagnostics, indent=2)+'\n```\n'
+            print(json.dumps(diagnostics), file=sys.stderr)
         try:
             Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(
                 '## Development article inventory\n\nStatus: ERROR\n\nStage: `'+stage+'`\n\n'
-                'No update commands were executed. Acquisition is not confirmed.\n', encoding='utf-8')
+                'No update commands were executed. Acquisition is not confirmed.\n'+diagnostic_text, encoding='utf-8')
         except Exception:
             pass
         return 1
