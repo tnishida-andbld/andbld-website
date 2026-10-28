@@ -616,6 +616,96 @@ I-0006 の方針:
 
 I-0006 の実作業は、この決定では開始しない。
 
+実施結果と Done 判定は D-0016 を正とする。本決定の本文は計画時点の記録として残す。
+
 ### Reason
 
 Production にだけあった方針ページ実装を Git 未管理のまま残すと、Development デプロイや後続改修で上書き・欠落する。Git 取り込みと環境再同期を分けて記録しないと、テーマが `main` にあることを環境同期完了と誤読するため。
+
+---
+
+## D-0016
+
+### Date
+
+2026-10-28
+
+### Status
+
+Approved
+
+### Related
+
+I-0006
+I-0005
+D-0005
+D-0006
+D-0007
+D-0015
+Actions run 40625104615
+
+### Decision
+
+I-0006 の WordPress 環境再同期を完了とし、I-0006 を Done とする。
+
+D-0015 の本文は、I-0005 Git 取り込みと I-0006 着手前方針の記録として残す。本決定が、その後の実施結果と Done 判定の正とする。
+
+GitHub に独立した I-0006 Issue は存在しない。追跡実体は OS 文書と GitHub Actions の Development デプロイ実行である。
+
+目的:
+
+- Production を WordPress コンテンツ・DB・uploads の基準とする
+- GitHub `main` をテーマソースの基準とする
+- 環境固有の認証情報・URL・検索エンジン設定・副作用防止を保持する
+- Development / Local の表示を Production 由来データと Git テーマで揃える
+
+実施結果:
+
+- Production の DB・ファイルは変更していない
+- Development は sidecar DB `andbld_i0006s1` を参照して稼働。旧 Development DB は残置
+- Local は isolate DB `andbld_i0006_local_20261028`（接頭辞 `ab_`）を参照して稼働。旧 Local DB は残置
+- URL 置換はシリアライズ対応で実施。`guid` は置換対象外
+- Local テーマ Junction（Git テーマ参照）は維持
+- Development テーマは GitHub Actions `Deploy to Development` で `main` を反映
+- Dry-run: run `40624103115` / success / 変更 5 ファイル / 削除 0
+- Deploy: run `40625104615` / SHA `3f8525f95bcb8262d24993fd81b0c900db7dcb34` / success
+- Deploy 反映: `template-parts/inc/customer-harassment-policy-page.php`、`template-parts/content-page.php`、`footer.php`、`css/page-contents.css`、`page-frontpage.php`
+- テーマバックアップ: `andbld.bak-20261028031013`（UTC）。自動ロールバックなし
+- Deploy 後 Human Review 6 項目 PASS
+- `/customer-harassment-policy/` は Production / Development / Local で表示確認済み。同期元 SQL に当該固定ページが無かったため、Development / Local は公開済み stub ページを追加し、本文は Git テーマが描画する
+- Local 管理画面の認証後ログインは Human 確認済み
+- Development の Basic 認証、検索エンジン非公開（`blog_public=0`）、`DISABLE_WP_CRON`、mu-plugin によるメール送信防止（`pre_wp_mail`）を確認。外部宛ての実送信テストは未実施
+
+完了条件（D-0015 方針との対応）:
+
+- Production をコンテンツ・DB・uploads の基準とした
+- GitHub `main` をテーマ SoT とした
+- 同期は新規 sidecar / isolate へ行い、既存 DB を上書きしなかった
+- URL 置換はシリアライズ対応
+- 環境固有設定を保持した
+- メール・cron・検索エンジン公開の副作用を抑止した
+- 方針ページを 3 環境で確認した
+- Development テーマ反映と Human Review を完了した
+
+切り戻し（値や絶対パスは書かない）:
+
+- Development テーマ: live テーマを退避し、`andbld.bak-20261028031013` を戻す。手順は workflow コメント（D-0007）
+- Development DB: `wp-config.php` の `DB_NAME` を sidecar 導入前の DB に戻す。旧 DB は削除していない
+- Local DB: `DB_NAME` を旧 Local DB へ、`$table_prefix` を `wp_` へ戻す。isolate DB と作業前ダンプは残置
+- Production は対象外
+
+I-0006 は Done とする。次は I-0006 の対象外として残す。
+
+- P-0002 `main` push 自動デプロイ
+- Production 自動デプロイ
+- `css/layout.css` の Production 専用差分（ブログ個別リンク色）
+- Xserver 自動バックアップの完了確認と、そのバックアップからの復元テスト
+- Local `cron` オプションに残る Yoast エントリ（実行時は `DISABLE_WP_CRON` と mu-plugin で抑止済み）
+- メール実送信テスト、および leadin / AIOS / WP Super Cache 以外の外部連携プラグインの追加抑止
+- `.gitignore` への `*.wpress` / `wordpress/wp-content/plugins/` 追加
+- ナビ「サービス」→「事業内容」ほか D-0014 の未決事項
+- 残置した旧 DB・旧バックアップの整理（削除してよいかは未決定）
+
+### Reason
+
+Production 由来データの同期、環境保護、Git テーマの Development 反映、方針ページの 3 環境表示、Human Review が揃ったため。D-0005 に従い、AI 自己検証ではなく Human 承認をもって Done とする。D-0015 の着手前方針を書き換えると、計画と実施の区別が残らない。

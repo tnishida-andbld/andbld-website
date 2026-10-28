@@ -2,8 +2,21 @@
 
 ## andbld AI Development OS
 
-- Version: **v0.7**
-- Updated: 2026-10-26
+- Version: **v0.8**
+- Updated: 2026-10-28
+
+番号は既存履歴（v0.2〜v0.7）の次号である。新しい版数規則は導入しない。
+
+### v0.8 変更概要
+
+- I-0006 WordPress 環境再同期完了。D-0016
+- Production 由来の DB・uploads を Development / Local へ同期
+- Development は sidecar DB、Local は isolate DB。既存 DB は残置
+- GitHub `main` をテーマ SoT として維持。Local Junction 維持
+- Development テーマ Deploy: Actions run `40625104615` / SHA `3f8525f95bcb8262d24993fd81b0c900db7dcb34`
+- `/customer-harassment-policy/` を 3 環境で表示確認
+- Current Issue なし
+- Next Issue は未決定。Human 確認待ち
 
 ### v0.7 変更概要
 
@@ -61,6 +74,7 @@
 
 | Version | Date | Summary |
 |---------|------|---------|
+| v0.8 | 2026-10-28 | I-0006 WordPress 環境再同期完了。D-0016。Dev sidecar / Local isolate。テーマ Deploy run 40625104615 |
 | v0.7 | 2026-10-26 | I-0005 Git 正式取り込み完了。PR #12。D-0015。環境再同期は未実施 |
 | v0.6 | 2026-10-26 | I-0004 Production 完了。Human Acceptance。D-0014。Current Issue なし |
 | v0.5 | 2026-08-26 | I-0003.5 引き継ぎ基盤。HANDOFF / D-0008 / L-0007 / L-0008。Current Issue なし |

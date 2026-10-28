@@ -1,7 +1,7 @@
 # HANDOFF — andbld AI Development OS
 
 > 現在地のスナップショット／索引。詳細は複製しない。
-> 更新日: 2026-10-26 ／ OS Version: **v0.7**（履歴は `docs/VERSION.md`）
+> 更新日: 2026-10-28 ／ OS Version: **v0.8**（履歴は `docs/VERSION.md`）
 
 ## 0. 新セッションの約束（必須）
 
@@ -36,10 +36,10 @@ WordPress 本体・DB・uploads・秘密情報は管理外。
 
 | 項目 | 状態 |
 |------|------|
-| OS Version | v0.7 |
-| 完了 | I-0001 / I-0002 / I-0003 / I-0003.5 / I-0004 / I-0005（Git 正式取り込みのみ） |
-| Current Issue | なし。I-0005 の Git 取り込みは DONE（PR #12 MERGED。詳細は D-0015）。Development / Local への反映は未完了 |
-| Next Issue | 未決定。Human 確認待ち。候補は I-0006（WordPress 環境再同期）。実装は開始しない |
+| OS Version | v0.8 |
+| 完了 | I-0001 / I-0002 / I-0003 / I-0003.5 / I-0004 / I-0005 / I-0006 |
+| Current Issue | なし。I-0006 は DONE（詳細は D-0016）。I-0005 の Git 取り込みは D-0015 |
+| Next Issue | 未決定。Human 確認待ち。実装は開始しない |
 | テーマ Version | 1.0.0（`style.css` のヘッダ。enqueue のクエリは D-0012 で `filemtime()`） |
 
 ## 3. Issue スナップショット
@@ -51,7 +51,8 @@ WordPress 本体・DB・uploads・秘密情報は管理外。
 | I-0003 | Development 手動デプロイ | Done | D-0007, L-0005, L-0006, P-0002 |
 | I-0003.5 | 引き継ぎ基盤（HANDOFF） | Done | このファイル, D-0008, L-0007 |
 | I-0004 | サイトコンテンツ更新 | Done。PR #10 MERGED。Production 反映・UAT・最終回帰 PASS。Human Acceptance 済み | D-0009〜D-0014。計画と仕様 |
-| I-0005 | カスタマーハラスメント方針の Git 正式取り込み | Git 部分は Done。PR #12 MERGED（`886db05`、2026-10-26 16:57:29 JST）。テーマ 4 ファイル。Development / Local 未反映 | D-0015 |
+| I-0005 | カスタマーハラスメント方針の Git 正式取り込み | Done。PR #12 MERGED（`886db05`、2026-10-26 16:57:29 JST）。テーマ 4 ファイル。Development / Local 反映は I-0006 | D-0015 |
+| I-0006 | WordPress 環境再同期 | Done。Production 由来 DB・uploads を Development / Local へ同期。テーマは `main`。Deploy run `40625104615`。方針ページ 3 環境確認 | D-0016 |
 
 P-0002 等を「次に必ず実施する Issue」としない。次は Human が決める。
 
@@ -62,13 +63,16 @@ P-0002 等を「次に必ず実施する Issue」としない。次は Human が
 | ID / 項目 | Status | 詳細 |
 |-----------|--------|------|
 | P-0002 `main` push 自動デプロイ | Open | `docs/998_LESSONS_LEARNED.md` |
+| `css/layout.css` Production 専用差分 | 未決定 | ブログ個別ページのリンク色。I-0005 / I-0006 対象外。D-0015 / D-0016 |
 | Production 自動デプロイ | 未着手 | D-0007 |
 | SSH connectivity test のリトライ | 未着手 | L-0005 |
 | Development backup の prune | 後続 | workflow コメント |
 | テーマ Requires PHP / Tested up to | TODO | `docs/VERSION.md` |
 | リポジトリ版数・リリース手順 | TODO | `docs/VERSION.md` |
-| I-0006 WordPress 環境再同期 | 未着手。候補。Production を WP コンテンツ・DB・uploads の基準、GitHub `main` をテーマ SoT とする | D-0015 |
-| I-0005 Development / Local 反映 | 未完了。Git 取り込み済み。テーマデプロイは I-0006 の DB 同期計画と調整 | D-0015 |
+| Local `cron` オプション残差 | Open | Yoast エントリが残る。実行時は抑止済み。整理は未実施。D-0016 |
+| 外部連携プラグインの追加抑止 | Open | leadin / AIOS / WP Super Cache は実行時除外済み。メール実送信テストは未実施。D-0016 |
+| `.gitignore` 補強 | Open | `*.wpress` と `wordpress/wp-content/plugins/` は未追加。今回の混入はなし。D-0016 |
+| 旧 DB・旧バックアップの整理 | Open | sidecar / isolate 切替後の旧 DB と作業前ダンプは残置。削除は未決定。D-0016 |
 | ナビ「サービス」→「事業内容」 | 未実施。変更先は維持。時期は未決定 | D-0009, D-0014 |
 | `/services/` の H1・ページタイトル | 未決定 | D-0009, D-0014 |
 | TOP の SEOタイトル | 未決定。無承認では変えない | D-0009, D-0014 |
@@ -80,23 +84,17 @@ P-0002 等を「次に必ず実施する Issue」としない。次は Human が
 
 P-0001 は Resolved。本文は `docs/998_LESSONS_LEARNED.md`。
 
-I-0006 の実作業は開始しない。着手時の確認事項（詳細は D-0015）:
+I-0006 の切り戻し概要（詳細は D-0016。値と絶対パスは書かない）:
 
-- Production を WP コンテンツ・DB・uploads の基準とする
-- GitHub `main` をテーマソースの基準とする
-- 同期前にバックアップと復元方法を確認する。復元試験は未実施
-- URL 置換はシリアライズ対応を必須とする
-- 環境固有の認証情報・設定を保持する
-- メール送信・外部 API・Webhook・WP-Cron 等の副作用を防ぐ
-- Development の検索エンジン非公開を確認する
-- `css/layout.css` の Production 専用差分（ブログ個別リンク色）は別途判断
-- 各環境で固定ページの存在と表示を確認する
+- Development テーマ: `andbld.bak-20261028031013` を戻す
+- Development / Local DB: `wp-config.php` の接続先を切替前の DB に戻す。旧 DB は残置
+- Production は対象外
 
 ## 5. 環境の運用状態
 
-- Local: Git テーマが SoT。XAMPP は Junction。手順は `README.md`。I-0005 テーマは `main` にある。固定ページ・DB・uploads の Production 基準同期は未実施
-- Development: GitHub Actions + rsync over SSH。正式運用は `workflow_dispatch` 手動。`mode` 初期値 `dry-run`。deploy 後も Human Review 必須。`main` push 自動デプロイは未実施（P-0002）。I-0004 の一時 inspect mode は削除済み。Environment `development` の Deployment branches は `main` のみ。I-0005 テーマの Development 反映は未実施。DB 同期は I-0006
-- Production: 自動デプロイなし。I-0004 は 2026-10-26 に FileZilla でテーマ 10 ファイルを個別反映（D-0014）。I-0005 テーマ 4 ファイルは Production 先行公開済みで、PR #12 により Git `main` へ取り込み済み。今回の Production 再アップロードは行わない
+- Local: Git テーマが SoT。XAMPP は Junction。手順は `README.md`。参照 DB は I-0006 isolate。Production 由来コンテンツ同期済み。旧 Local DB は残置
+- Development: GitHub Actions + rsync over SSH。正式運用は `workflow_dispatch` 手動。`mode` 初期値 `dry-run`。deploy 後も Human Review 必須。`main` push 自動デプロイは未実施（P-0002）。Environment `development` の Deployment branches は `main` のみ。参照 DB は I-0006 sidecar。I-0005 テーマは run `40625104615` で反映済み。旧 Development DB は残置
+- Production: 自動デプロイなし。I-0004 は 2026-10-26 に FileZilla でテーマ 10 ファイルを個別反映（D-0014）。I-0005 テーマ 4 ファイルは Production 先行公開済み。I-0006 では Production の DB・ファイルを変更していない
 
 詳細: D-0003 / D-0006 / D-0007 / `README.md`「Development Deploy」
 操作の実体: `.github/workflows/deploy-development.yml`
@@ -120,7 +118,8 @@ I-0006 の実作業は開始しない。着手時の確認事項（詳細は D-0
 - D-0012 I-0004 変更CSSの `filemtime()` 読み込み
 - D-0013 I-0004 は実装・Development 反映・UAT PASS まで完了。当時 PR #10 は OPEN / Draft。Production は未承認
 - D-0014 I-0004 Production リリース完了。Human Acceptance。Done
-- D-0015 I-0005 の Production 先行実装を Git へ正式取り込み。環境再同期は I-0006
+- D-0015 I-0005 の Production 先行実装を Git へ正式取り込み。環境再同期は I-0006 へ分離
+- D-0016 I-0006 WordPress 環境再同期完了。Human 承認。Done
 
 ## 7. Lessons 索引
 
