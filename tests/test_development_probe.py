@@ -102,7 +102,24 @@ class ProbeTests(unittest.TestCase):
         result = subprocess.run(args, capture_output=True, text=True, timeout=15)
         self.assertEqual(result.returncode, 1)
         self.assertEqual(json.loads(result.stdout), {'status':'ERROR', 'stage':'installation'})
-        self.assertEqual(probe.response_diagnostics(result)['milestones'], ['php_started'])
+        self.assertEqual(probe.response_diagnostics(result)['milestones'], ['php_started', 'eval_started', 'probe_started'])
+
+    def test_version_metadata_is_strictly_numeric_and_unique(self):
+        for value, expected in [('ANDBLD_PHP_VERSION_ID:80200',80200),
+                                ('ANDBLD_PHP_VERSION_ID:SECRET',None),
+                                ('ANDBLD_PHP_VERSION_ID:80200\nANDBLD_PHP_VERSION_ID:80200',None)]:
+            report = probe.response_diagnostics(SimpleNamespace(stdout='',stderr=value,returncode=0))
+            self.assertEqual(report['php_version_id'],expected)
+            self.assertNotIn('SECRET',json.dumps(report))
+
+    @unittest.skipUnless(os.environ.get('PHP_TEST_BINARY'), 'Set PHP_TEST_BINARY for local PHP integration')
+    def test_eval_failures_return_fixed_errors(self):
+        for source, stage in [('invalid syntax SECRET', 'php_eval'), ('return false;', 'php_load'), ('', 'php_load')]:
+            result = subprocess.run([os.environ['PHP_TEST_BINARY'], '-d', 'display_errors=0', '-d', 'log_errors=0',
+                                     '-r',probe.php_bootstrap(source)], capture_output=True,text=True,timeout=15)
+            self.assertNotEqual(result.returncode,0)
+            self.assertEqual(json.loads(result.stdout), {'status':'ERROR','stage':stage})
+            self.assertNotIn('SECRET',result.stdout+result.stderr)
 
     def test_only_allowlisted_metadata_reaches_summary(self):
         data = dict(status='OK',post_id=318,site_identity='development_verified',wordpress_bootstrap=False,
