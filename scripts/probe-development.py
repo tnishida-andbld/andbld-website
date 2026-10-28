@@ -1,0 +1,96 @@
+"""Fixed Development inventory; no arbitrary remote command or article input."""
+import base64
+import json
+import os
+from pathlib import Path
+import re
+import shlex
+import subprocess
+import sys
+
+
+def validate(env):
+    if env.get('GITHUB_REF') != 'refs/heads/main' or env.get('GITHUB_EVENT_NAME') != 'workflow_dispatch':
+        raise ValueError('main manual execution required')
+    for key, pattern in {
+        'DEV_SSH_HOST': r'[A-Za-z0-9][A-Za-z0-9.-]*',
+        'DEV_SSH_USER': r'[A-Za-z0-9_][A-Za-z0-9_.-]*',
+        'DEV_SSH_PORT': r'[0-9]{1,5}',
+        'DEV_DEPLOY_PATH': r'/[A-Za-z0-9_./-]+',
+    }.items():
+        if not re.fullmatch(pattern, env.get(key, '')):
+            raise ValueError('invalid configuration')
+    if not 1 <= int(env['DEV_SSH_PORT']) <= 65535:
+        raise ValueError('invalid port')
+    parts = env['DEV_DEPLOY_PATH'].split('/')
+    if any(p in ('.', '..') for p in parts) or 'dev-20260601.andbld.co.jp' not in parts or parts[-3:] != ['wp-content','themes','andbld']:
+        raise ValueError('invalid Development path')
+
+
+def remote_script(env):
+    validate(env)
+    php = Path(__file__).with_suffix('.php').read_text(encoding='utf-8')
+    php = php.removeprefix('<?php\n') + '\nprobe_main($argv[1], $argv[2]);\n'
+    encoded = base64.b64encode(php.encode()).decode()
+    return ('set -eu\n'
+            'command -v php >/dev/null 2>&1 || exit 20\n'
+            'available=no\ncommand -v wp >/dev/null 2>&1 && available=yes\n'
+            'php -d display_errors=0 -d log_errors=0 -r ' +
+            shlex.quote('eval(base64_decode("' + encoded + '"));') + ' ' +
+            shlex.quote(env['DEV_DEPLOY_PATH']) + ' "$available"\n')
+
+
+def main():
+    try:
+        env = os.environ
+        payload = remote_script(env)
+        ssh_dir = Path(env['RUNNER_TEMP']) / 'article-probe-ssh'
+        ssh_dir.mkdir(mode=0o700)
+        for name, key in [('key','DEV_SSH_PRIVATE_KEY'), ('known_hosts','DEV_SSH_KNOWN_HOSTS')]:
+            value = env[key].replace('\r','')
+            if not value.strip():
+                raise ValueError('missing secret')
+            target = ssh_dir / name
+            target.write_text(value + '\n', encoding='utf-8')
+            target.chmod(0o600)
+        result = subprocess.run([
+            'ssh', '-T', '-i', str(ssh_dir/'key'), '-p', env['DEV_SSH_PORT'],
+            '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=yes',
+            '-o', 'UserKnownHostsFile='+str(ssh_dir/'known_hosts'),
+            '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15',
+            '-o', 'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=2',
+            env['DEV_SSH_USER']+'@'+env['DEV_SSH_HOST'], 'bash -s',
+        ], input=payload, text=True, capture_output=True, timeout=90)
+        # Only emit enumerated fields, never raw SSH output/stderr.
+        data = json.loads(result.stdout)
+        if result.returncode or data.get('status') != 'OK':
+            raise ValueError('remote probe failed')
+        if data.get('post_id') != 318 or data.get('site_identity') != 'development_verified' or data.get('wordpress_bootstrap') is not False:
+            raise ValueError('invalid identity')
+        if not re.fullmatch(r'[a-f0-9]{64}', data.get('content_sha256','')):
+            raise ValueError('invalid hash')
+        if type(data.get('content_bytes')) is not int or data['content_bytes'] < 1:
+            raise ValueError('invalid size')
+        if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?', data.get('php_version','')):
+            raise ValueError('invalid version')
+        for key in ['wp_cli_on_path','backup_parent_writable']:
+            if type(data.get(key)) is not bool:
+                raise ValueError('invalid flag')
+        clean = {key:data[key] for key in ['post_id','php_version','wp_cli_on_path','content_bytes','content_sha256','backup_parent_writable']}
+        clean.update(status='OK', ssh_scope='not_verified', wp_cli_execution='not_tested', backup_create_restore='not_tested', wordpress_bootstrap=False)
+        report = '## Development article inventory\n\n```json\n'+json.dumps(clean, indent=2)+'\n```\n'
+        Path(env['GITHUB_STEP_SUMMARY']).write_text(report, encoding='utf-8')
+        print('Development inventory completed. See summary; no article update performed.')
+    except Exception:
+        print('Development inventory failed; raw remote output was suppressed.', file=sys.stderr)
+        return 1
+    finally:
+        # Only our two ephemeral runner credential files, no recursive deletion.
+        if 'ssh_dir' in locals():
+            for name in ('key','known_hosts'):
+                (ssh_dir/name).unlink(missing_ok=True)
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
