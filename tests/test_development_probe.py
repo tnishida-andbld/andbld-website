@@ -40,9 +40,9 @@ class ProbeTests(unittest.TestCase):
                 return rc, text, run
 
     def test_failure_does_not_publish_raw_output(self):
-        for data in ['SECRET', json.dumps({'status':'ERROR','stage':'SECRET'})]:
+        for data, expected in [('SECRET','remote_output_non_json'), (json.dumps({'status':'ERROR','stage':'SECRET'}),'remote_response')]:
             rc, text, _ = self.run_mock(data, 1)
-            self.assertEqual(rc,1); self.assertIn('remote_response',text)
+            self.assertEqual(rc,1); self.assertIn(expected,text)
 
     def test_only_fixed_failure_stage_is_reported(self):
         for remote, expected in [('config','remote_config'), ('SECRET','remote_response'),
@@ -51,9 +51,30 @@ class ProbeTests(unittest.TestCase):
             self.assertEqual(rc,1); self.assertIn('Stage: `'+expected+'`',text)
 
     def test_transport_and_php_exit_codes(self):
-        for code, expected in [(255,'ssh_execution'),(20,'remote_php_unavailable')]:
+        for code, expected in [(255,'remote_output_non_json'),(20,'remote_php_unavailable')]:
             rc, text, _ = self.run_mock('SECRET',code)
             self.assertEqual(rc,1); self.assertIn('Stage: `'+expected+'`',text)
+
+    def test_output_shape_is_distinguished_without_raw_text(self):
+        for raw, shape in [('', 'empty'), ('SECRET', 'non_json'), ('["SECRET"]','other_json'), ('{"secret":"SECRET"}', 'object')]:
+            result = SimpleNamespace(stdout=raw,stderr='SECRET',returncode=255)
+            report = probe.response_diagnostics(result)
+            self.assertEqual(report['stdout_format'], shape)
+            self.assertEqual(report['exit_code'],255)
+            self.assertNotIn('SECRET',json.dumps(report))
+
+    def test_error_markers_never_copy_paths_or_credentials(self):
+        for raw, marker in [('PHP Parse error: SECRET','php_parse_error_marker'),
+                            ('PHP Fatal error: SECRET','php_fatal_error_marker'),
+                            ('Error in argument SECRET','php_usage_marker'), ('SECRET','unclassified')]:
+            report = probe.response_diagnostics(SimpleNamespace(stdout='',stderr=raw,returncode=1))
+            self.assertEqual(report['stderr_class'],marker)
+            self.assertNotIn('SECRET',json.dumps(report))
+
+    def test_empty_and_non_object_response_fail_safely(self):
+        for raw, stage in [('', 'remote_output_empty'), ('[]', 'remote_output_other_json')]:
+            rc,text,_=self.run_mock(raw)
+            self.assertEqual(rc,1); self.assertIn(stage,text)
 
     def test_only_allowlisted_metadata_reaches_summary(self):
         data = dict(status='OK',post_id=318,site_identity='development_verified',wordpress_bootstrap=False,
