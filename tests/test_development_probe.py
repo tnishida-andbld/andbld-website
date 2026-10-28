@@ -14,6 +14,22 @@ probe = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(probe)
 
 class ProbeTests(unittest.TestCase):
+    def storage(self):
+        node = dict(kind='directory', owner_matches_process=True, mode='0700')
+        return dict(parent=node.copy(), container=node.copy(), post_directory=node.copy(),
+                    free_bytes=12345, outside_confirmed_wp_root=True, web_exposure='not_verified', ready_for_backup=False)
+
+    def test_storage_metadata_rejects_untrusted_values(self):
+        data = self.storage()
+        data['secret'] = 'SECRET'
+        data['parent']['path'] = 'SECRET'
+        self.assertNotIn('SECRET', json.dumps(probe.clean_storage(data)))
+        for key, value in [('free_bytes',-1), ('free_bytes',True), ('ready_for_backup',True), ('web_exposure','safe')]:
+            invalid = self.storage(); invalid[key] = value
+            with self.assertRaises(ValueError): probe.clean_storage(invalid)
+        data['parent']['mode'] = 'SECRET'
+        with self.assertRaises(ValueError): probe.clean_storage(data)
+
     def env(self):
         return dict(GITHUB_REF='refs/heads/main', GITHUB_EVENT_NAME='workflow_dispatch',
                     DEV_SSH_HOST='example.invalid', DEV_SSH_USER='fixture', DEV_SSH_PORT='22',
@@ -134,7 +150,7 @@ class ProbeTests(unittest.TestCase):
     def test_only_allowlisted_metadata_reaches_summary(self):
         data = dict(status='OK',post_id=318,site_identity='development_verified',wordpress_bootstrap=False,
                     content_sha256='a'*64,content_bytes=123,php_version='8.2.0',wp_cli_on_path=False,
-                    backup_parent_writable=False,unexpected='SECRET')
+                    backup_parent_writable=False,unexpected='SECRET',storage=self.storage())
         rc, text, run = self.run_mock(json.dumps(data))
         self.assertEqual(rc,0); self.assertIn('not_verified',text)
         args = run.call_args.args[0]

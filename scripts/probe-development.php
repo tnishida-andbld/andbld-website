@@ -61,6 +61,32 @@ function probe_root($theme) {
     return $root;
 }
 
+function probe_storage_node($path) {
+    $s = @lstat($path);
+    if ($s === false) return ['kind'=>'absent_or_unreadable', 'owner_matches_process'=>null, 'mode'=>null];
+    $type = $s['mode'] & 0170000;
+    return ['kind'=>$type === 0120000 ? 'symlink' : ($type === 0040000 ? 'directory' : 'other'),
+        'owner_matches_process'=>function_exists('posix_geteuid') ? $s['uid'] === posix_geteuid() : null,
+        'mode'=>sprintf('%04o', $s['mode'] & 07777)];
+}
+
+function probe_storage($root) {
+    if (basename($root) !== 'public_html') throw new RuntimeException('Unexpected public root');
+    $parent = dirname($root);
+    $container = $parent.'/private-article-backups';
+    $p = probe_storage_node($parent);
+    $c = probe_storage_node($container);
+    // Never traverse a candidate symlink, file, or inaccessible directory.
+    $child = ['kind'=>'not_checked', 'owner_matches_process'=>null, 'mode'=>null];
+    if ($c['kind'] === 'directory' && is_readable($container) && is_executable($container)) {
+        $child = probe_storage_node($container.'/post-318');
+    }
+    $free = @disk_free_space($parent);
+    return ['parent'=>$p, 'container'=>$c, 'post_directory'=>$child,
+        'free_bytes'=>$free === false ? null : (int)$free,
+        'outside_confirmed_wp_root'=>true, 'web_exposure'=>'not_verified', 'ready_for_backup'=>false];
+}
+
 function probe_main($theme, $wpAvailable) {
     ini_set('display_errors', '0');
     ini_set('log_errors', '0');
@@ -93,12 +119,15 @@ function probe_main($theme, $wpAvailable) {
         }
         $db->rollback();
         $db->close();
+        $stage = 'storage';
+        $storage = probe_storage($root);
         echo json_encode([
             'status'=>'OK', 'post_id'=>318, 'site_identity'=>'development_verified',
             'wp_cli_on_path'=>$wpAvailable === 'yes', 'wp_cli_execution'=>'not_tested',
             'php_version'=>PHP_VERSION, 'content_bytes'=>(int)$r['content_bytes'],
             'content_sha256'=>$r['content_sha256'],
             'backup_parent_writable'=>is_writable(dirname($root)),
+            'storage'=>$storage,
             'backup_create_restore'=>'not_tested', 'ssh_scope'=>'not_verified',
             'wordpress_bootstrap'=>false
         ], JSON_THROW_ON_ERROR)."\n";
