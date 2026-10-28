@@ -1,5 +1,8 @@
 import importlib.util
 import json
+import os
+import shlex
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -75,6 +78,31 @@ class ProbeTests(unittest.TestCase):
         for raw, stage in [('', 'remote_output_empty'), ('[]', 'remote_output_other_json')]:
             rc,text,_=self.run_mock(raw)
             self.assertEqual(rc,1); self.assertIn(stage,text)
+
+    def test_milestones_require_exact_allowlisted_lines(self):
+        result = SimpleNamespace(stdout='', returncode=0, stderr=
+            'ANDBLD_PROBE:shell_started\nANDBLD_PROBE:php_found\n'
+            'ANDBLD_PROBE:SECRET\nprefix ANDBLD_PROBE:php_started\n')
+        report = probe.response_diagnostics(result)
+        self.assertEqual(report['milestones'], ['shell_started', 'php_found'])
+        self.assertTrue(report['stderr_present'])
+        self.assertNotIn('SECRET', json.dumps(report))
+        result.stderr = 'ANDBLD_PROBE:shell_started\nANDBLD_PROBE:php_finished\n'
+        report = probe.response_diagnostics(result)
+        self.assertEqual(report['stderr_class'], 'empty')
+        self.assertFalse(report['stderr_present'])
+
+    @unittest.skipUnless(os.environ.get('PHP_TEST_BINARY'), 'Set PHP_TEST_BINARY for local PHP integration')
+    def test_generated_php_executes_and_rejects_nonexistent_fixture(self):
+        payload = probe.remote_script(self.env())
+        command = next(line for line in payload.splitlines() if line.startswith('php -d'))
+        args = shlex.split(command)
+        args[0] = os.environ['PHP_TEST_BINARY']
+        args[-1] = 'no'
+        result = subprocess.run(args, capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(json.loads(result.stdout), {'status':'ERROR', 'stage':'installation'})
+        self.assertEqual(probe.response_diagnostics(result)['milestones'], ['php_started'])
 
     def test_only_allowlisted_metadata_reaches_summary(self):
         data = dict(status='OK',post_id=318,site_identity='development_verified',wordpress_bootstrap=False,

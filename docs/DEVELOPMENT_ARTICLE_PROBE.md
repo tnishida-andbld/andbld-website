@@ -52,3 +52,13 @@ I-0007 / D-0018。記事操作自動化の可否を調べる手動Actions。記�
 - 改善版は終了コード、stdoutの形式（empty/non_json/object/other_json）、stderrの有無と固定エラーマーカー分類だけを表示する。生のstdout/stderrや例外本文は引き続き出さない。
 - exit 255はSSHとリモートプログラムのどちらでも返り得るため、認証失敗と決めつけない。エラーマーカーも原因確定ではなく切り分け材料とする。
 - SQL・認証・接続先・権限・リモート調査コマンドは変更しない。新たなサーバー設定変更や調査対象の拡大はない。
+
+## 3回目の実行と到達目印
+
+- PR #19を承認後マージ。main: `c511b3ea94863b451064f60bbeb95b6fbdd27de8`
+- [run 40674674585](https://github.com/tnishida-andbld/andbld-website/actions/runs/40674674585): Failure、14秒、`remote_output_empty`。終了コード0、stdout/stderrとも空。取得成功とは扱わない。
+- シェル開始、phpコマンド存在確認、PHPコード開始、PHPコマンド終了の固定目印をstderrへ出す。完全一致する許可リストのみサマリーへ転記し、他の出力は非表示にする。`stderr_present`は既知目印を除いた出力の有無を表す。
+- PHPがCLI以外で実行された場合は固定目印`non_cli`を出して終了21で停止する。別のPHPを自動選択したり設定を変更したりしない。
+- 目印がないことだけで認証・権限・PHPの障害を断定しない。PHP終了の目印も記事取得成功を意味しない。既存のJSON・対象照合が成功条件。
+- 調査対象、SQL、SSH権限は維持。WordPressや本番への変更なし。
+- 検証: `PHP_TEST_BINARY`にローカルPHP実行ファイルを指定すると、生成されたPHPコマンドを存在しないfixtureパスで実行し、安全なinstallationエラーとPHP開始目印を確認する。未指定時はこの1件をskipする。今回10件すべてPASS。実サーバーの実行結果ではない。
