@@ -27,14 +27,25 @@ def validate(env):
         raise ValueError('invalid Development path')
 
 
+def php_bootstrap(source):
+    encoded = base64.b64encode(source.encode()).decode()
+    # Keep this wrapper compatible with older PHP; inspect version before eval.
+    return ('file_put_contents("php://stderr", "ANDBLD_PROBE:php_started\\n");'
+            'file_put_contents("php://stderr", "ANDBLD_PHP_VERSION_ID:".PHP_VERSION_ID."\\n");'
+            'if (PHP_SAPI !== "cli") { echo json_encode(array("status"=>"ERROR","stage"=>"php_sapi")); exit(21); }'
+            'if (PHP_VERSION_ID < 80000) { echo json_encode(array("status"=>"ERROR","stage"=>"php_version")); exit(22); }'
+            'file_put_contents("php://stderr", "ANDBLD_PROBE:eval_started\\n");'
+            'try { $loaded = eval(base64_decode("' + encoded + '")); }'
+            'catch (Throwable $e) { echo json_encode(array("status"=>"ERROR","stage"=>"php_eval")); exit(23); }'
+            'if ($loaded === false || !function_exists("probe_main")) { echo json_encode(array("status"=>"ERROR","stage"=>"php_load")); exit(24); }'
+            'file_put_contents("php://stderr", "ANDBLD_PROBE:probe_started\\n");'
+            'probe_main($argv[1], $argv[2]);')
+
+
 def remote_script(env):
     validate(env)
     php = Path(__file__).with_suffix('.php').read_text(encoding='utf-8')
-    php = php.removeprefix('<?php\n') + '\nprobe_main($argv[1], $argv[2]);\n'
-    encoded = base64.b64encode(php.encode()).decode()
-    bootstrap = ('file_put_contents("php://stderr", "ANDBLD_PROBE:php_started\\n");'
-                 'if (PHP_SAPI !== "cli") { file_put_contents("php://stderr", "ANDBLD_PROBE:non_cli\\n"); exit(21); }'
-                 'eval(base64_decode("' + encoded + '"));')
+    bootstrap = php_bootstrap(php.removeprefix('<?php\n'))
     return ('set -eu\n'
             'printf "ANDBLD_PROBE:shell_started\\n" >&2\n'
             'command -v php >/dev/null 2>&1 || exit 20\n'
@@ -54,11 +65,13 @@ def response_diagnostics(result):
         shape = 'object' if isinstance(parsed, dict) else 'other_json'
     except (ValueError, TypeError):
         shape = 'empty' if not result.stdout.strip() else 'non_json'
-    allowed = ('shell_started', 'php_found', 'php_started', 'non_cli', 'php_finished')
+    allowed = ('shell_started', 'php_found', 'php_started', 'eval_started', 'probe_started', 'php_finished')
     lines = result.stderr.splitlines()
+    version_lines = [line for line in lines if re.fullmatch(r'ANDBLD_PHP_VERSION_ID:[1-9][0-9]{4,5}', line)]
+    version_id = int(version_lines[0].split(':')[1]) if len(version_lines) == 1 else None
     milestones = [name for name in allowed if 'ANDBLD_PROBE:' + name in lines]
     stderr = '\n'.join(line for line in lines if line not in
-                       {'ANDBLD_PROBE:' + name for name in allowed}).lower()
+                       {'ANDBLD_PROBE:' + name for name in allowed} and line not in version_lines).lower()
     if 'php parse error' in stderr or 'parse error:' in stderr:
         error_class = 'php_parse_error_marker'
     elif 'php fatal error' in stderr or 'fatal error:' in stderr:
@@ -69,7 +82,7 @@ def response_diagnostics(result):
         error_class = 'unclassified' if stderr.strip() else 'empty'
     return {'exit_code': int(result.returncode), 'stdout_format': shape,
             'stderr_present': bool(stderr.strip()), 'stderr_class': error_class,
-            'milestones': milestones}
+            'milestones': milestones, 'php_version_id': version_id}
 
 
 def main():
@@ -109,7 +122,8 @@ def main():
             raise ValueError('Invalid response shape')
         data = json.loads(result.stdout)
         if isinstance(data, dict) and data.get('status') == 'ERROR':
-            allowed = {'installation', 'config', 'database', 'site_identity', 'article_identity'}
+            allowed = {'installation', 'config', 'database', 'site_identity', 'article_identity',
+                       'php_sapi', 'php_version', 'php_eval', 'php_load'}
             remote_stage = data.get('stage')
             if isinstance(remote_stage, str) and remote_stage in allowed:
                 stage = 'remote_' + remote_stage

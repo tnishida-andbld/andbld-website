@@ -62,3 +62,13 @@ I-0007 / D-0018。記事操作自動化の可否を調べる手動Actions。記�
 - 目印がないことだけで認証・権限・PHPの障害を断定しない。PHP終了の目印も記事取得成功を意味しない。既存のJSON・対象照合が成功条件。
 - 調査対象、SQL、SSH権限は維持。WordPressや本番への変更なし。
 - 検証: `PHP_TEST_BINARY`にローカルPHP実行ファイルを指定すると、生成されたPHPコマンドを存在しないfixtureパスで実行し、安全なinstallationエラーとPHP開始目印を確認する。未指定時はこの1件をskipする。今回10件すべてPASS。実サーバーの実行結果ではない。
+
+## 4回目の結果とPHP互換性の確認
+
+- PR #20を承認後マージ。main: `620e77d681ef46c4d7c3553fe9d52366edb75623`
+- [run 40675678725](https://github.com/tnishida-andbld/andbld-website/actions/runs/40675678725): Failure、14秒。shell_started / php_found / php_started / php_finishedを確認。終了コード0、JSONは空。記事取得は未確認。
+- 次の診断ではPHP_VERSION_IDを5〜6桁の整数としてのみ記録。複数出力や不正な形式はnullとし、任意文字列は記録しない。
+- 調査コードの読込とprobe_main呼出しを分離。PHP 8未満は調査開始前にphp_versionで停止。CLI以外はphp_sapiで停止。eval例外はphp_eval、読込失敗または関数不在はphp_loadとして停止する。
+- サーバー側PHPの実際の版数や根本原因は未確定。別PHPの自動選択・アップグレード・設定変更はしない。
+- ローカルPHPを使う12テストPASS。構文不正・false返却・関数未定義を再現し、秘密文字列を表示せず固定エラーになることを確認。旧PHP実機での検証は未実施。
+- SQL、記事識別、読み取り専用トランザクション、接続先・権限は維持。新しい実行は承認後に1回のみ。
