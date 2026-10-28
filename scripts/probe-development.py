@@ -41,9 +41,11 @@ def remote_script(env):
 
 
 def main():
+    stage = 'runner_configuration'
     try:
         env = os.environ
         payload = remote_script(env)
+        stage = 'runner_credentials'
         ssh_dir = Path(env['RUNNER_TEMP']) / 'article-probe-ssh'
         ssh_dir.mkdir(mode=0o700)
         for name, key in [('key','DEV_SSH_PRIVATE_KEY'), ('known_hosts','DEV_SSH_KNOWN_HOSTS')]:
@@ -53,6 +55,7 @@ def main():
             target = ssh_dir / name
             target.write_text(value + '\n', encoding='utf-8')
             target.chmod(0o600)
+        stage = 'ssh_execution'
         result = subprocess.run([
             'ssh', '-T', '-i', str(ssh_dir/'key'), '-p', env['DEV_SSH_PORT'],
             '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=yes',
@@ -62,9 +65,22 @@ def main():
             env['DEV_SSH_USER']+'@'+env['DEV_SSH_HOST'], 'bash -s',
         ], input=payload, text=True, capture_output=True, timeout=90)
         # Only emit enumerated fields, never raw SSH output/stderr.
+        if result.returncode == 255:
+            raise ValueError('SSH failed')
+        if result.returncode == 20:
+            stage = 'remote_php_unavailable'
+            raise ValueError('PHP unavailable')
+        stage = 'remote_response'
         data = json.loads(result.stdout)
+        if isinstance(data, dict) and data.get('status') == 'ERROR':
+            allowed = {'installation', 'config', 'database', 'site_identity', 'article_identity'}
+            remote_stage = data.get('stage')
+            if isinstance(remote_stage, str) and remote_stage in allowed:
+                stage = 'remote_' + remote_stage
+            raise ValueError('remote probe failed')
         if result.returncode or data.get('status') != 'OK':
             raise ValueError('remote probe failed')
+        stage = 'response_validation'
         if data.get('post_id') != 318 or data.get('site_identity') != 'development_verified' or data.get('wordpress_bootstrap') is not False:
             raise ValueError('invalid identity')
         if not re.fullmatch(r'[a-f0-9]{64}', data.get('content_sha256','')):
@@ -79,10 +95,19 @@ def main():
         clean = {key:data[key] for key in ['post_id','php_version','wp_cli_on_path','content_bytes','content_sha256','backup_parent_writable']}
         clean.update(status='OK', ssh_scope='not_verified', wp_cli_execution='not_tested', backup_create_restore='not_tested', wordpress_bootstrap=False)
         report = '## Development article inventory\n\n```json\n'+json.dumps(clean, indent=2)+'\n```\n'
+        stage = 'summary_write'
         Path(env['GITHUB_STEP_SUMMARY']).write_text(report, encoding='utf-8')
         print('Development inventory completed. See summary; no article update performed.')
     except Exception:
-        print('Development inventory failed; raw remote output was suppressed.', file=sys.stderr)
+        # stage can only be a local constant or an explicitly allowlisted remote code.
+        message = 'Development inventory failed at: ' + stage + '. Raw output suppressed.'
+        print(message, file=sys.stderr)
+        try:
+            Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(
+                '## Development article inventory\n\nStatus: ERROR\n\nStage: `'+stage+'`\n\n'
+                'No update commands were executed. Acquisition is not confirmed.\n', encoding='utf-8')
+        except Exception:
+            pass
         return 1
     finally:
         # Only our two ephemeral runner credential files, no recursive deletion.
