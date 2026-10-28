@@ -93,3 +93,16 @@ I-0007 / D-0018。記事操作自動化の可否を調べる手動Actions。記�
 - WordPressを起動せず、記事本文を外部へ出力せず、記事・サイト設定を変更していない。Web表示用PHPの版数は調査対象外。
 - 再実行成功は前回exit 255の原因確定を意味しない。記事更新の自動化やI-0007全体の完了とも区別する。
 - 次の設計案は [記事編集手順](ARTICLE_EDITING.md) を参照。
+
+## 保存先候補の読み取り調査（未実行）
+
+既存の手動probeに、記事照合成功後の保存先候補調査を追加する。フォルダ作成、chmod、本文保存、記事更新、キー変更は行わない。保存先・権限設計は [ARTICLE_EDITING.md](ARTICLE_EDITING.md) を参照。
+
+- 確認済みWordPressルートの末尾がpublic_htmlの場合のみ、その親、固定候補private-article-backups、その子post-318の状態を取得する。
+- lstatでdirectory / symlink / other / absent_or_unreadableを区別。lstat失敗は不存在と断定しない。候補がリンク・通常ファイル・読取り/探索不可なら子はnot_checkedとし、辿らない。
+- 所有者は実行ユーザーとの一致だけ（判定APIなしはnull）、権限は4桁の8進数、容量は親のファイルシステムの空きバイト数（取得不可はnull）を記録する。容量はユーザーquotaや保存成功を保証しない。
+- 結果はPython側で型・固定値を再検証し、未知フィールドを捨てる。UID、ユーザー名、絶対パス、本文は出力しない。
+- outside_confirmed_wp_rootはパス構造上の判定のみ。Webサーバーaliasや他ドメインの公開設定は未確認のためweb_exposure=not_verified、ready_for_backup=falseを常に表示する。調査成功を保存先採用・権限分離完了と解釈しない。
+- 検査は一時点の状態であり、将来のバックアップ作成時はリンク差替え等の競合も含めて再検証する。
+- ローカル: Python 14テスト、PHP構文、config/pathおよび保存先fixture試験PASS。不存在・通常ファイル・ディレクトリ・本文やパス非出力を確認。Windowsでは実シンボリックリンクfixtureをskip。Unix環境での同試験と実サーバー実行は未実施。
+- マージ・サーバーでの手動1回実行は別途Human承認後。既存のconcurrency・Secrets・PHP 8.3指定を維持する。
