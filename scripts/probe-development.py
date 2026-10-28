@@ -32,12 +32,19 @@ def remote_script(env):
     php = Path(__file__).with_suffix('.php').read_text(encoding='utf-8')
     php = php.removeprefix('<?php\n') + '\nprobe_main($argv[1], $argv[2]);\n'
     encoded = base64.b64encode(php.encode()).decode()
+    bootstrap = ('file_put_contents("php://stderr", "ANDBLD_PROBE:php_started\\n");'
+                 'if (PHP_SAPI !== "cli") { file_put_contents("php://stderr", "ANDBLD_PROBE:non_cli\\n"); exit(21); }'
+                 'eval(base64_decode("' + encoded + '"));')
     return ('set -eu\n'
+            'printf "ANDBLD_PROBE:shell_started\\n" >&2\n'
             'command -v php >/dev/null 2>&1 || exit 20\n'
+            'printf "ANDBLD_PROBE:php_found\\n" >&2\n'
             'available=no\ncommand -v wp >/dev/null 2>&1 && available=yes\n'
+            'set +e\n'
             'php -d display_errors=0 -d log_errors=0 -r ' +
-            shlex.quote('eval(base64_decode("' + encoded + '"));') + ' ' +
-            shlex.quote(env['DEV_DEPLOY_PATH']) + ' "$available"\n')
+            shlex.quote(bootstrap) + ' ' +
+            shlex.quote(env['DEV_DEPLOY_PATH']) + ' "$available"\n'
+            'rc=$?\nprintf "ANDBLD_PROBE:php_finished\\n" >&2\nexit "$rc"\n')
 
 
 def response_diagnostics(result):
@@ -47,7 +54,11 @@ def response_diagnostics(result):
         shape = 'object' if isinstance(parsed, dict) else 'other_json'
     except (ValueError, TypeError):
         shape = 'empty' if not result.stdout.strip() else 'non_json'
-    stderr = result.stderr.lower()
+    allowed = ('shell_started', 'php_found', 'php_started', 'non_cli', 'php_finished')
+    lines = result.stderr.splitlines()
+    milestones = [name for name in allowed if 'ANDBLD_PROBE:' + name in lines]
+    stderr = '\n'.join(line for line in lines if line not in
+                       {'ANDBLD_PROBE:' + name for name in allowed}).lower()
     if 'php parse error' in stderr or 'parse error:' in stderr:
         error_class = 'php_parse_error_marker'
     elif 'php fatal error' in stderr or 'fatal error:' in stderr:
@@ -57,7 +68,8 @@ def response_diagnostics(result):
     else:
         error_class = 'unclassified' if stderr.strip() else 'empty'
     return {'exit_code': int(result.returncode), 'stdout_format': shape,
-            'stderr_present': bool(result.stderr.strip()), 'stderr_class': error_class}
+            'stderr_present': bool(stderr.strip()), 'stderr_class': error_class,
+            'milestones': milestones}
 
 
 def main():
