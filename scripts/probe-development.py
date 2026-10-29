@@ -148,7 +148,9 @@ def main():
         data = json.loads(result.stdout)
         if isinstance(data, dict) and data.get('status') == 'ERROR':
             allowed = {'installation', 'config', 'database', 'site_identity', 'article_identity',
-                       'php_sapi', 'php_version', 'php_eval', 'php_load', 'storage'}
+                       'php_sapi', 'php_version', 'php_eval', 'php_load', 'storage',
+                       'storage_layout', 'storage_parent', 'storage_container',
+                       'storage_child', 'storage_capacity', 'response_encoding'}
             remote_stage = data.get('stage')
             if isinstance(remote_stage, str) and remote_stage in allowed:
                 stage = 'remote_' + remote_stage
