@@ -107,9 +107,11 @@ I-0006 の切り戻し概要（詳細は D-0016。値と絶対パスは書かな
 ### Google Driveバックアップ接続の準備
 
 - PC稼働に依存しない保存先として専用共有ドライブを採用し、専用サービスアカウント・WIF・Drive APIの設定をHumanが実施
-- 接続確認の実装: `docs/BACKUP_DRIVE_CONNECTION.md`。共有ドライブのメタデータのみを読み取る手動workflow。実接続は未実行
-- Environment variables登録、マージと接続テスト1回の承認待ち。記事取得・保存・復元・定期実行は今回含めない
+- 接続確認の実装: `docs/BACKUP_DRIVE_CONNECTION.md`。共有ドライブのメタデータのみを読み取る手動workflow。PR #28マージ後、run `40844467699`で認証・読み取りに成功（2026-10-29）
+- Environment variables登録済み。記事取得・保存・復元・定期実行は未実施
 - サーバー内の保存先は安全性未確認のまま。既存のサーバー保存PoC案の実施承認を意味しない
+
+- 保存・読み戻しコアをダミーデータで検証。実行workflow・取得用専用経路は未接続。詳細: `docs/ARTICLE_BACKUP_DRIVE_POC.md`
 
 ### I-0007の残作業
 
