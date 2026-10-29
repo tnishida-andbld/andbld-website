@@ -33,7 +33,7 @@
 ### v0.9 Drive接続準備の追記（2026-10-29）
 
 - 専用共有ドライブへのWIF認証とメタデータ読み取りのみを行う手動workflowを追加
-- 手順: `docs/BACKUP_DRIVE_CONNECTION.md`。実接続は未実行。バックアップ作成・復元・定期実行は未実装
+- 手順: `docs/BACKUP_DRIVE_CONNECTION.md`。run `40844467699`で読み取り接続成功。保存・読み戻しコアはダミーデータの6テスト成功、実行経路未接続。実記事バックアップ・復元・定期実行は未実施
 - 分析用認証と分離。本番・DevelopmentのWordPressは変更しない。v0.9 / I-0007 In Progressを維持
 
 ### v0.8 変更概要
