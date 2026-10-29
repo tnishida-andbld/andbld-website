@@ -72,24 +72,21 @@ function probe_storage_node($path) {
 
 function probe_storage($root, &$stage = null) {
     $stage = 'storage_layout';
-    if (basename($root) !== 'public_html') throw new RuntimeException('Unexpected public root');
-    $parent = dirname($root);
-    $container = $parent.'/private-article-backups';
-    $stage = 'storage_parent';
-    $p = probe_storage_node($parent);
-    $stage = 'storage_container';
-    $c = probe_storage_node($container);
-    // Never traverse a candidate symlink, file, or inaccessible directory.
-    $child = ['kind'=>'not_checked', 'owner_matches_process'=>null, 'mode'=>null];
-    $stage = 'storage_child';
-    if ($c['kind'] === 'directory' && is_readable($container) && is_executable($container)) {
-        $child = probe_storage_node($container.'/post-318');
+    // Classify the already resolved path only. Do not inspect backup candidates.
+    $parts = explode('/', trim(str_replace('\\', '/', $root), '/'));
+    $depths = [];
+    foreach ($parts as $index => $part) {
+        if ($part === 'public_html') $depths[] = count($parts) - 1 - $index;
     }
-    $stage = 'storage_capacity';
-    $free = @disk_free_space($parent);
-    return ['parent'=>$p, 'container'=>$c, 'post_directory'=>$child,
-        'free_bytes'=>$free === false ? null : (int)$free,
-        'outside_confirmed_wp_root'=>true, 'web_exposure'=>'not_verified', 'ready_for_backup'=>false];
+    $depth = count($depths) === 1 ? $depths[0] : null;
+    return [
+        'layout' => count($depths) > 1 ? 'ambiguous' :
+            ($depth === null ? 'no_public_html_component' :
+                ($depth === 0 ? 'root_named_public_html' : 'root_below_public_html')),
+        'levels_below_public_html' => $depth,
+        'candidate_inspection' => 'not_performed',
+        'web_exposure' => 'not_verified', 'ready_for_backup' => false
+    ];
 }
 
 function probe_main($theme, $wpAvailable) {
@@ -132,7 +129,6 @@ function probe_main($theme, $wpAvailable) {
             'wp_cli_on_path'=>$wpAvailable === 'yes', 'wp_cli_execution'=>'not_tested',
             'php_version'=>PHP_VERSION, 'content_bytes'=>(int)$r['content_bytes'],
             'content_sha256'=>$r['content_sha256'],
-            'backup_parent_writable'=>is_writable(dirname($root)),
             'storage'=>$storage,
             'backup_create_restore'=>'not_tested', 'ssh_scope'=>'not_verified',
             'wordpress_bootstrap'=>false
