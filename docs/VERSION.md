@@ -3,7 +3,7 @@
 ## andbld AI Development OS
 
 - Version: **v0.9**
-- Updated: 2026-10-28
+- Updated: 2026-10-29
 
 番号は既存履歴（v0.2〜v0.8）の次号である。新しい版数規則は導入しない。
 
@@ -29,6 +29,12 @@
 - 調査用PHPは8.3.36。WP-CLI実動作、バックアップ作成・復元、SSH権限分離は未検証
 - `docs/ARTICLE_EDITING.md`へバックアップ・復元PoC案を追加。未承認・未実装であり、記事の自動更新や本番更新権限を追加しない
 - v0.9を維持。I-0007はIn Progressのまま
+
+### v0.9 Drive接続準備の追記（2026-10-29）
+
+- 専用共有ドライブへのWIF認証とメタデータ読み取りのみを行う手動workflowを追加
+- 手順: `docs/BACKUP_DRIVE_CONNECTION.md`。実接続は未実行。バックアップ作成・復元・定期実行は未実装
+- 分析用認証と分離。本番・DevelopmentのWordPressは変更しない。v0.9 / I-0007 In Progressを維持
 
 ### v0.8 変更概要
 
