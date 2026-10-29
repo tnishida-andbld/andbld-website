@@ -74,6 +74,14 @@ class ProbeTests(unittest.TestCase):
             rc, text, _ = self.run_mock('SECRET',code)
             self.assertEqual(rc,1); self.assertIn('Stage: `'+expected+'`',text)
 
+    def test_storage_failure_stages_are_allowlisted(self):
+        for stage in ('storage_layout', 'storage_parent', 'storage_container',
+                      'storage_child', 'storage_capacity', 'response_encoding'):
+            rc, text, _ = self.run_mock(json.dumps({'status':'ERROR','stage':stage,'message':'SECRET'}),1)
+            self.assertEqual(rc,1)
+            self.assertIn('Stage: `remote_'+stage+'`',text)
+            self.assertNotIn('SECRET',text)
+
     def test_output_shape_is_distinguished_without_raw_text(self):
         for raw, shape in [('', 'empty'), ('SECRET', 'non_json'), ('["SECRET"]','other_json'), ('{"secret":"SECRET"}', 'object')]:
             result = SimpleNamespace(stdout=raw,stderr='SECRET',returncode=255)

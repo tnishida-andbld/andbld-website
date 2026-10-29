@@ -70,17 +70,22 @@ function probe_storage_node($path) {
         'mode'=>sprintf('%04o', $s['mode'] & 07777)];
 }
 
-function probe_storage($root) {
+function probe_storage($root, &$stage = null) {
+    $stage = 'storage_layout';
     if (basename($root) !== 'public_html') throw new RuntimeException('Unexpected public root');
     $parent = dirname($root);
     $container = $parent.'/private-article-backups';
+    $stage = 'storage_parent';
     $p = probe_storage_node($parent);
+    $stage = 'storage_container';
     $c = probe_storage_node($container);
     // Never traverse a candidate symlink, file, or inaccessible directory.
     $child = ['kind'=>'not_checked', 'owner_matches_process'=>null, 'mode'=>null];
+    $stage = 'storage_child';
     if ($c['kind'] === 'directory' && is_readable($container) && is_executable($container)) {
         $child = probe_storage_node($container.'/post-318');
     }
+    $stage = 'storage_capacity';
     $free = @disk_free_space($parent);
     return ['parent'=>$p, 'container'=>$c, 'post_directory'=>$child,
         'free_bytes'=>$free === false ? null : (int)$free,
@@ -120,7 +125,8 @@ function probe_main($theme, $wpAvailable) {
         $db->rollback();
         $db->close();
         $stage = 'storage';
-        $storage = probe_storage($root);
+        $storage = probe_storage($root, $stage);
+        $stage = 'response_encoding';
         echo json_encode([
             'status'=>'OK', 'post_id'=>318, 'site_identity'=>'development_verified',
             'wp_cli_on_path'=>$wpAvailable === 'yes', 'wp_cli_execution'=>'not_tested',
