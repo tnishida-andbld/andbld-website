@@ -106,3 +106,14 @@ I-0007 / D-0018。記事操作自動化の可否を調べる手動Actions。記�
 - 検査は一時点の状態であり、将来のバックアップ作成時はリンク差替え等の競合も含めて再検証する。
 - ローカル: Python 14テスト、PHP構文、config/pathおよび保存先fixture試験PASS。不存在・通常ファイル・ディレクトリ・本文やパス非出力を確認。Windowsでは実シンボリックリンクfixtureをskip。Unix環境での同試験と実サーバー実行は未実施。
 - マージ・サーバーでの手動1回実行は別途Human承認後。既存のconcurrency・Secrets・PHP 8.3指定を維持する。
+
+## 保存先調査の初回結果と診断細分化（2026-10-29追記）
+
+- PR #25マージ後、2026-10-28 20:22 JSTの[run 40679396093](https://github.com/tnishida-andbld/andbld-website/actions/runs/40679396093)はFailure、15秒、remote_storage。main: `8da67a2dbed92dc6fc492102bcb4aa4598c993dc`。
+- PHP 8.3.36で記事識別・DB処理終了後のstorage段階に到達したが、保存先の結果は取得できていない。記事や権限・フォルダの変更なし。
+- 設置ルート名public_htmlという条件との不一致は仮説であり、現時点では原因未確定。
+- 診断をstorage_layout / storage_parent / storage_container / storage_child / storage_capacity / response_encodingへ細分化。固定コードのみを出力し、例外本文・絶対パスを出さない。
+- storage_layoutならルート名条件の不一致。その他は該当処理中の例外を示すだけであり、具体的な権限障害等とは断定しない。既存のabsent_or_unreadableやnullで返る取得不能は、そのまま保持する。
+- 検査対象、SQL、保存先、public_html条件、リンクを辿らない条件は変更しない。新規のサーバー処理や設定変更はない。
+- ローカルPython15テスト、PHP構文・fixture検証PASS。想定外ルート名で停止すること、固定コードだけが報告されることを確認。Windowsでの実シンボリックリンクfixtureは引き続きskip。
+- この変更による実サーバー調査は未実行。承認後にマージし、読み取り調査を1回実行する。
