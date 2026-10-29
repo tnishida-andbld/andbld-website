@@ -51,6 +51,15 @@ HTTP 401/403/404等で失敗した場合、設定・API有効化・共有ドラ�
 
 実接続テストはPRマージと手動実行のHuman承認後に1回実施し、Run IDと結果を記録する。
 
+## 実行記録（2026-10-29）
+
+- PR #28をHuman承認後にマージ。SHA `3200a11bb69b32d4998c8b3d86d14076bc50dae8`
+- run `40844467699`、mainから1回の手動実行。Google認証・メタデータ取得とも成功
+- 結果 `shared_drive_connection_verified`。記事取得・Drive書込みなし
+- 次段階の準備: [ARTICLE_BACKUP_DRIVE_POC.md](ARTICLE_BACKUP_DRIVE_POC.md)。実記事バックアップ・復元は未実施
+- checkoutのNode.js 20非推奨警告あり。実行はNode.js 24で成功。Action更新は後続対応
+- Environment variablesの値はActionsのステップ設定ログに表示される。識別子は認証情報ではないが、秘密にする用途にはvariablesを使わない
+
 ## 公式資料
 
 - [Google auth Action](https://github.com/google-github-actions/auth)
