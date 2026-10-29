@@ -8,7 +8,7 @@ I-0007 / D-0018。記事操作自動化の可否を調べる手動Actions。記�
 
 対象はDevelopmentの投稿318、type=blog、slug=claude-code-github-ai-development-workflow、status=publishに固定。接続先DBはD-0016のDevelopment DBとの一致を要求する。本文、ユーザー情報、DB認証情報、サーバー絶対パスをログ・artifactに保存しない。
 
-サマリーに出すのは投稿ID、PHP版、WP-CLIがPATH上に存在するか、本文バイト数・SHA256、バックアップ候補となる親ディレクトリの書き込み可否だけ。SSH権限範囲、WP-CLI実動作、バックアップ作成・復元は未検証と明記する。既存DBユーザーの権限を読み取り専用へ変更するものではない。
+サマリーに出すのは投稿ID、PHP版、WP-CLIがPATH上に存在するか、本文バイト数・SHA256、解決済み設置パスとpublic_html要素の位置関係だけ。SSH権限範囲、WP-CLI実動作、バックアップ作成・復元は未検証と明記する。既存DBユーザーの権限を読み取り専用へ変更するものではない。
 
 ## 保護と限界
 
@@ -117,3 +117,12 @@ I-0007 / D-0018。記事操作自動化の可否を調べる手動Actions。記�
 - 検査対象、SQL、保存先、public_html条件、リンクを辿らない条件は変更しない。新規のサーバー処理や設定変更はない。
 - ローカルPython15テスト、PHP構文・fixture検証PASS。想定外ルート名で停止すること、固定コードだけが報告されることを確認。Windowsでの実シンボリックリンクfixtureは引き続きskip。
 - この変更による実サーバー調査は未実行。承認後にマージし、読み取り調査を1回実行する。
+
+## 設置パス分類への切替（2026-10-29）
+
+- PR #26後のrun 40834876513はremote_storage_layoutで停止。WordPressルート名をpublic_htmlと決めつけた条件に不一致。実際の階層はまだ未確認。
+- 以前の保存先候補調査を置き換え、確認済みrealpathの構成要素だけを分類する。public_htmlと同じ階層、配下、要素なし、複数で曖昧の4分類と配下の階層数だけを返す。ディレクトリ列挙や親・候補の属性取得は行わない。
+- public_htmlという名前はWeb公開設定の証明ではない。candidate_inspection=not_performed、web_exposure=not_verified、ready_for_backup=falseを維持。候補の採用や作成は行わない。
+- backup_parent_writableはサマリーから削除。記事識別・READ ONLY照会・SSH保護は維持。本文や絶対パスを出力しない。
+- XserverファイルマネージャーはHuman申告のIP制限により利用不可。再度の利用依頼やIP制限解除を前提にしない。
+- ローカルPython15テスト、PHP構文、config/pathおよび5種類の合成パス分類試験PASS。実サーバーでは未実行。マージ・読み取り調査1回の実行は別途承認後。

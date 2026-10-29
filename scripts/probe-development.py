@@ -90,24 +90,18 @@ def response_diagnostics(result):
 def clean_storage(data):
     if not isinstance(data, dict):
         raise ValueError('missing storage inventory')
-    clean = {}
-    for key in ('parent', 'container', 'post_directory'):
-        node = data.get(key)
-        if not isinstance(node, dict) or node.get('kind') not in ('directory', 'symlink', 'other', 'absent_or_unreadable', 'not_checked'):
-            raise ValueError('invalid storage node')
-        owner, mode = node.get('owner_matches_process'), node.get('mode')
-        if owner is not None and type(owner) is not bool:
-            raise ValueError('invalid owner flag')
-        if mode is not None and (not isinstance(mode, str) or not re.fullmatch(r'[0-7]{4}', mode)):
-            raise ValueError('invalid mode')
-        clean[key] = dict(kind=node['kind'], owner_matches_process=owner, mode=mode)
-    free = data.get('free_bytes')
-    if free is not None and (type(free) is not int or free < 0):
-        raise ValueError('invalid capacity')
-    if data.get('outside_confirmed_wp_root') is not True or data.get('web_exposure') != 'not_verified' or data.get('ready_for_backup') is not False:
-        raise ValueError('invalid storage assurance')
-    clean.update(free_bytes=free, outside_confirmed_wp_root=True, web_exposure='not_verified', ready_for_backup=False)
-    return clean
+    layout = data.get('layout')
+    depth = data.get('levels_below_public_html')
+    if layout not in ('ambiguous', 'no_public_html_component', 'root_named_public_html', 'root_below_public_html'):
+        raise ValueError('invalid layout')
+    if layout in ('ambiguous', 'no_public_html_component'):
+        if depth is not None: raise ValueError('unexpected depth')
+    elif type(depth) is not int or depth < 0 or (layout == 'root_named_public_html') != (depth == 0):
+        raise ValueError('invalid depth')
+    if data.get('candidate_inspection') != 'not_performed' or data.get('web_exposure') != 'not_verified' or data.get('ready_for_backup') is not False:
+        raise ValueError('invalid assurance')
+    return dict(layout=layout, levels_below_public_html=depth,
+                candidate_inspection='not_performed', web_exposure='not_verified', ready_for_backup=False)
 
 
 def main():
@@ -169,10 +163,10 @@ def main():
             raise ValueError('invalid size')
         if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?', data.get('php_version','')):
             raise ValueError('invalid version')
-        for key in ['wp_cli_on_path','backup_parent_writable']:
+        for key in ['wp_cli_on_path']:
             if type(data.get(key)) is not bool:
                 raise ValueError('invalid flag')
-        clean = {key:data[key] for key in ['post_id','php_version','wp_cli_on_path','content_bytes','content_sha256','backup_parent_writable']}
+        clean = {key:data[key] for key in ['post_id','php_version','wp_cli_on_path','content_bytes','content_sha256']}
         clean['storage'] = clean_storage(data.get('storage'))
         clean.update(status='OK', ssh_scope='not_verified', wp_cli_execution='not_tested', backup_create_restore='not_tested', wordpress_bootstrap=False)
         report = '## Development article inventory\n\n```json\n'+json.dumps(clean, indent=2)+'\n```\n'

@@ -29,45 +29,18 @@ try { probe_root('/not/a/development/theme'); } catch (RuntimeException $e) { $r
 check($rejected);
 echo "Config/path guard tests passed.\n";
 
-// Layout mismatch must stop before inspecting the candidate or its parent.
-$stage = null;
-$rejected = false;
-try { probe_storage('/fixture/SECRET/nonstandard-root', $stage); }
-catch (RuntimeException $e) { $rejected = true; }
-check($rejected && $stage === 'storage_layout');
-check(strpos($stage, 'SECRET') === false);
-
-// Local fixture only. No remote directories are created by the probe.
-$tmp = sys_get_temp_dir().'/andbld-storage-'.bin2hex(random_bytes(8));
-mkdir($tmp); mkdir($tmp.'/public_html');
-try {
-    $a = probe_storage($tmp.'/public_html', $stage);
-    check($stage === 'storage_capacity');
-    check($a['container']['kind'] === 'absent_or_unreadable');
-    check($a['post_directory']['kind'] === 'not_checked');
-    check(!file_exists($tmp.'/private-article-backups'));
-    file_put_contents($tmp.'/private-article-backups', 'fixture');
-    $a = probe_storage($tmp.'/public_html');
-    check($a['container']['kind'] === 'other' && $a['post_directory']['kind'] === 'not_checked');
-    unlink($tmp.'/private-article-backups');
-    mkdir($tmp.'/private-article-backups');
-    mkdir($tmp.'/private-article-backups/post-318');
-    $a = probe_storage($tmp.'/public_html');
-    check($a['container']['kind'] === 'directory');
-    check($a['ready_for_backup'] === false && $a['web_exposure'] === 'not_verified');
-    check(strpos(json_encode($a), $tmp) === false);
-    rmdir($tmp.'/private-article-backups/post-318');
-    rmdir($tmp.'/private-article-backups');
-    if (PHP_OS_FAMILY !== 'Windows') {
-        symlink($tmp.'/public_html', $tmp.'/private-article-backups');
-        $a = probe_storage($tmp.'/public_html');
-        check($a['container']['kind'] === 'symlink' && $a['post_directory']['kind'] === 'not_checked');
-        unlink($tmp.'/private-article-backups');
-    } else { echo "Symlink fixture skipped on Windows.\n"; }
-} finally {
-    if (is_link($tmp.'/private-article-backups') || is_file($tmp.'/private-article-backups')) unlink($tmp.'/private-article-backups');
-    if (is_dir($tmp.'/private-article-backups/post-318')) rmdir($tmp.'/private-article-backups/post-318');
-    if (is_dir($tmp.'/private-article-backups')) rmdir($tmp.'/private-article-backups');
-    rmdir($tmp.'/public_html'); rmdir($tmp);
+// Synthetic path classification only: no filesystem or server writes.
+foreach ([
+    ['/SECRET/site/public_html', 'root_named_public_html', 0],
+    ['/SECRET/site/public_html/dev-20260601.andbld.co.jp', 'root_below_public_html', 1],
+    ['/SECRET/site/public_html/dev/wordpress', 'root_below_public_html', 2],
+    ['/SECRET/site/custom', 'no_public_html_component', null],
+    ['/SECRET/public_html/site/public_html', 'ambiguous', null]
+] as [$path, $expected, $depth]) {
+    $a = probe_storage($path, $stage);
+    check($a['layout'] === $expected && $a['levels_below_public_html'] === $depth);
+    check($a['candidate_inspection'] === 'not_performed');
+    check($a['web_exposure'] === 'not_verified' && $a['ready_for_backup'] === false);
+    check(strpos(json_encode($a), 'SECRET') === false);
 }
-echo "Storage inventory fixture tests passed.\n";
+echo "Layout classification tests passed.\n";
