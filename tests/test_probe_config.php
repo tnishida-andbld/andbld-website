@@ -29,11 +29,20 @@ try { probe_root('/not/a/development/theme'); } catch (RuntimeException $e) { $r
 check($rejected);
 echo "Config/path guard tests passed.\n";
 
+// Layout mismatch must stop before inspecting the candidate or its parent.
+$stage = null;
+$rejected = false;
+try { probe_storage('/fixture/SECRET/nonstandard-root', $stage); }
+catch (RuntimeException $e) { $rejected = true; }
+check($rejected && $stage === 'storage_layout');
+check(strpos($stage, 'SECRET') === false);
+
 // Local fixture only. No remote directories are created by the probe.
 $tmp = sys_get_temp_dir().'/andbld-storage-'.bin2hex(random_bytes(8));
 mkdir($tmp); mkdir($tmp.'/public_html');
 try {
-    $a = probe_storage($tmp.'/public_html');
+    $a = probe_storage($tmp.'/public_html', $stage);
+    check($stage === 'storage_capacity');
     check($a['container']['kind'] === 'absent_or_unreadable');
     check($a['post_directory']['kind'] === 'not_checked');
     check(!file_exists($tmp.'/private-article-backups'));
