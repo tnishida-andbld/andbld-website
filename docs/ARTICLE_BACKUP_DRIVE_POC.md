@@ -225,3 +225,22 @@ Unixの実chmod・実シンボリックリンク試験はWindowsではskip。Lin
 
 読み取り実行の仕様は、mainから手動1回、development Environment、既存deploy-development排他、固定PHP CLI・ホスト鍵検証・生エラー非表示を維持する。
 既存の記事調査workflowを実行してもこの新処理は動作しない。専用呼出元の実装・Linux検証・レビュー後に、マージと読み取り1回を承認対象として提示する。
+
+## 手動調査への接続（2026-11-04）
+
+本節が、上記の「呼出元・workflow未接続」という準備時点の記録を更新する。
+.github/workflows/inspect-export-placement.yml と scripts/inspect-export-placement.py を追加した。実サーバー実行はまだない。
+
+- リポジトリ/所有者の数値ID、main、workflow_dispatchをworkflowとPythonで照合。任意入力・scheduleなし。
+- development Environmentの既存SSH Secretsを今回の読み取り調査に限り利用し、deploy-developmentと排他する。バックアップ実運用に広い鍵を流用する承認ではない。
+- Linux上でPHP fixtureとPythonテストを先に実行し、不合格ならSSH接続しない。PHPがrunnerにない場合はインストールせず停止する。
+- SSHクライアント設定を読み込まず、指定鍵・known_hostsを使用。エージェント、パスワード、転送を無効にし、ホスト鍵検証を要求する。
+- 固定PHP 8.3 CLI、追加iniなし。OSアカウント名と接続設定のユーザー名を照合してから、メタデータ調査だけを呼ぶ。POSIX関数が使用不可なら停止する。
+- リモートへのファイル配置なし。レビュー対象のPHPソースを符号化した固定コマンドとして渡す。任意コマンド入力はない。
+- 90秒の実行期限、stdout/stderr合計16KiB超過の監視を設ける。20ms間隔の監視なので一時ファイルへの瞬間的な超過を厳密に防ぐものではない。結果をメモリに読む際も上限を適用する。
+- 生の応答・エラーはrunner上の一時ファイルにのみ受け、終了時に閉じて破棄する。GitHubログやartifactに出さない。応答の項目・型・固定値を検証してからサマリーに記録する。
+- 専用一時フォルダ内の鍵/known_hostsは終了時に削除。例外本文は表示せず固定段階名で失敗を報告する。
+
+検証: ローカルPython9テストPASS（実行元/入力、SSH指定、応答検査、正常プロセス、異常終了/stderr、出力過多、時間切れ）。
+既存PHP fixture8確認PASS。WindowsでのUnix実権限・リンクfixtureはskipのまま。GitHub Linux試験・実SSH接続は未実施。
+次の実行対象は本専用workflowのmain手動1回。PR #29のマージおよび調査実行はHumanの明示承認後に行う。
