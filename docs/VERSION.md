@@ -3,7 +3,7 @@
 ## andbld AI Development OS
 
 - Version: **v0.9**
-- Updated: 2026-10-29
+- Updated: 2026-11-04
 
 番号は既存履歴（v0.2〜v0.8）の次号である。新しい版数規則は導入しない。
 
@@ -33,8 +33,20 @@
 ### v0.9 Drive接続準備の追記（2026-10-29）
 
 - 専用共有ドライブへのWIF認証とメタデータ読み取りのみを行う手動workflowを追加
-- 手順: `docs/BACKUP_DRIVE_CONNECTION.md`。実接続は未実行。バックアップ作成・復元・定期実行は未実装
+- 手順: `docs/BACKUP_DRIVE_CONNECTION.md`。run `40844467699`で読み取り接続成功。保存・読み戻しコアはダミーデータの6テスト成功、実行経路未接続。実記事バックアップ・復元・定期実行は未実施
 - 分析用認証と分離。本番・DevelopmentのWordPressは変更しない。v0.9 / I-0007 In Progressを維持
+
+### v0.9 バックアップ設計の追記（2026-11-04）
+
+- Xserver回答の要点を `docs/ARTICLE_BACKUP_DRIVE_POC.md` に反映。専用SSH鍵は条件付き検証候補
+- 動作・保持保証なし、command=未検証。拒否試験、永続停止、通知、専用鍵失効、残余リスクと不採用条件を整理
+- 設計文書のみ更新。サーバー設定・実記事バックアップ・復元は未実施。v0.9 / I-0007 In Progressを維持
+
+### v0.9 配置調査の準備（2026-11-04）
+
+- メタデータ専用調査を手動Actionsへ接続。main/リポジトリ固定、development環境、既存デプロイと排他
+- ローカルPython9テストとPHP fixture8確認PASS。Unix実権限/リンク試験はWindowsでskip。Linux試験・実SSHは未実施
+- マージと読み取り1回は承認待ち。配置・鍵登録・記事取得は含めない
 
 ### v0.8 変更概要
 
